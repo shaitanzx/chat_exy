@@ -241,7 +241,7 @@ async def get_reference_files_api() -> List[str]:
 async def get_predefined_voices_api() -> List[Dict[str, str]]:
     """Original from server.py - get predefined voices"""
     return utils.get_predefined_voices()
-
+"""
 async def upload_reference_audio_endpoint(files: List[gr.File]) -> Dict[str, Any]:
     """Original from server.py - upload reference audio"""
     ref_path = get_reference_audio_path(ensure_absolute=True)
@@ -290,7 +290,7 @@ async def upload_reference_audio_endpoint(files: List[gr.File]) -> Dict[str, Any
         "all_reference_files": all_files,
         "errors": errors
     }
-
+"""
 async def upload_predefined_voice_endpoint(files: List[gr.File]) -> Dict[str, Any]:
     """Original from server.py - upload predefined voice"""
     predefined_voices_path = get_predefined_voices_path(ensure_absolute=True)
