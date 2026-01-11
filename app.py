@@ -753,13 +753,14 @@ def create_gradio_interface():
                     value={},
                     visible=False
                 )
-        with gr.Row():                
+        with gr.Group():
+            with gr.Row():                
                 # Настройки разделения текста (аналог Split text into chunks)
                     split_text_toggle = gr.Checkbox(
                         label="Split text into chunks",
                         value=True
                     )
-        with gr.Row():            
+            with gr.Row():            
                     chunk_size_slider = gr.Slider(
                         minimum=50,
                         maximum=1000,
