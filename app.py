@@ -801,21 +801,7 @@ def create_gradio_interface():
                             interactive=True
                         )                    
         # Секция с пресетами
-        with gr.Accordion("📚 Example Presets", open=False):
-            if appPresets:
-                preset_buttons = []
-                for preset in appPresets:
-                    btn = gr.Button(
-                        preset.get("name", "Unnamed"),
-                        size="sm",
-                        variant="secondary"
-                    )
-                    btn.click(
-                        fn=lambda p=preset: applyPreset(p.get("name", ""), appPresets),
-                        inputs=[],
-                        outputs=[text_area, temperature_slider, exaggeration_slider, 
-                                cfg_weight_slider, speed_factor_slider, seed_input]
-                    )
+
 #                    preset_buttons.append(btn)
                 
                 # Создаем колонки для кнопок пресетов
@@ -886,7 +872,21 @@ def create_gradio_interface():
                                 value=get_audio_output_format(),
                                 label="Output Format"
                                 )
-
+        with gr.Accordion("📚 Example Presets", open=False):
+            if appPresets:
+                preset_buttons = []
+                for preset in appPresets:
+                    btn = gr.Button(
+                        preset.get("name", "Unnamed"),
+                        size="sm",
+                        variant="secondary"
+                    )
+                    btn.click(
+                        fn=lambda p=preset: applyPreset(p.get("name", ""), appPresets),
+                        inputs=[],
+                        outputs=[text_area, temperature_slider, exaggeration_slider, 
+                                cfg_weight_slider, speed_factor_slider, seed_input]
+                    )
 
         with gr.Row():                
                 # Имя аудиофайла
