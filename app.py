@@ -656,6 +656,7 @@ def on_generate_click(
     # (в Gradio можно добавить чекбоксы для отключения предупреждений)
     
     # Вызов TTS генерации
+    
     audio_file, message = custom_tts_endpoint(
         text=text,
         voice_mode=voice_mode,
