@@ -682,23 +682,19 @@ async def on_generate_click(
 
 
 
-async def on_copy_click(text: str) -> Dict[str, str]:
+def on_copy_click(text: str):
     """Обработчик кнопки Copy (аналог из script.js)"""
     import pyperclip
-    try:
-        pyperclip.copy(text)
-        return show_notification("✅ Text copied!", "success")
-    except:
-        return show_notification("⚠️ Clipboard blocked - copy manually.", "warning")
+    pyperclip.copy(text)
+    gr.Info("Text copied to clipboard")
+    return
+    
 
-async def on_paste_click() -> Tuple[str, Dict[str, str]]:
+def on_paste_click(text):
     """Обработчик кнопки Paste (аналог из script.js)"""
     import pyperclip
-    try:
-        text = pyperclip.paste()
-        return text, show_notification("📥 Text pasted!", "success")
-    except:
-        return "", show_notification("⚠️ Cannot access clipboard", "error")
+    text += pyperclip.paste()
+    return text
 
 def on_clear_click():
     """Обработчик кнопки Clear (аналог из script.js)"""
@@ -1056,20 +1052,13 @@ def create_gradio_interface():
         # Кнопки управления текстом
         copy_btn.click(
             fn=on_copy_click,
-            inputs=[text_area],
-            outputs=[notification_display]
-        ).then(
-            fn=lambda: gr.update(visible=True),
-            outputs=notification_display
+            inputs=[text_area]
         )
         
         paste_btn.click(
             fn=on_paste_click,
-            inputs=[],
-            outputs=[text_area, notification_display]
-        ).then(
-            fn=lambda: gr.update(visible=True),
-            outputs=notification_display
+            inputs=[text],
+            outputs=[text_area]
         )
         
         clear_btn.click(
