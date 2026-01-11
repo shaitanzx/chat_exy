@@ -843,7 +843,11 @@ def create_gradio_interface():
                                 step=0.01,
                                 label="CFG Weight"
                                 )
-                    
+                            seed_input = gr.Number(
+                                value=get_gen_default_seed(),
+                                label="Generation Seed",
+                                info="0 or -1 for random"
+                                )
                         with gr.Column():
                             exaggeration_slider = gr.Slider(
                                 minimum=0.0,
@@ -859,29 +863,18 @@ def create_gradio_interface():
                                 step=0.05,
                                 label="Speed Factor"
                                 )
-
-                    
-                    with gr.Row():
-                        seed_input = gr.Number(
-                            value=get_gen_default_seed(),
-                            label="Generation Seed",
-                            info="0 or -1 for random"
-                        )
-                    
-                    with gr.Row():
-                        language_select = gr.Dropdown(
-                            choices=language_options,
-                            value=f"English (en)",
-                            label="Language",
-                            interactive=True
-                        )
-                    
-                    with gr.Row():
-                        output_format_select = gr.Dropdown(
-                            choices=["wav", "mp3", "opus"],
-                            value=get_audio_output_format(),
-                            label="Output Format"
-                        )
+                            language_select = gr.Dropdown(
+                                choices=language_options,
+                                value=f"English (en)",
+                                label="Language",
+                                interactive=True
+                                )
+                        with gr.Row():
+                            output_format_select = gr.Dropdown(
+                                choices=["wav", "mp3", "opus"],
+                                value=get_audio_output_format(),
+                                label="Output Format"
+                                )
 
 
         with gr.Row():                
