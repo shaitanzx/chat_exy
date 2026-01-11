@@ -863,7 +863,7 @@ def create_gradio_interface():
                                 )
                             language_select = gr.Dropdown(
                                 choices=language_options,
-                                value=f"English (en)",
+                                value=current_config.get("generation_defaults", {}).get("language", "English (en)"),
                                 label="Language",
                                 interactive=True
                                 )

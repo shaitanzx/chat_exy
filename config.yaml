@@ -26,7 +26,7 @@ generation_defaults:
   cfg_weight: 0
   seed: 42
   speed_factor: 1
-  language: ru
+  language: Russian (ru)
 audio_output:
   format: wav
   sample_rate: 24000
