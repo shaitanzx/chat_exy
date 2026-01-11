@@ -944,9 +944,9 @@ def create_gradio_interface():
                         value=current_config.get("tts_engine", {}).get("predefined_voices_path", "./voices"),
                         interactive=True
                         )
-                    config_audio_output_format = gr.Textbox(
-                        label="Audio Output Format",
-                        value=current_config.get("audio_output", {}).get("format", "mp3"),
+                    config_paths_output = gr.Textbox(
+                        label="Output Path",
+                        value=current_config.get("paths", {}).get("output", "./outputs"),
                         interactive=True
                         )
                 with gr.Column():  
@@ -971,11 +971,12 @@ def create_gradio_interface():
                         value=current_config.get("tts_engine", {}).get("default_voice_clone", ""),
                         interactive=True
                         )
-                    config_paths_output = gr.Textbox(
-                        label="Output Path",
-                        value=current_config.get("paths", {}).get("output", "./outputs"),
+                    config_audio_output_format = gr.Textbox(
+                        label="Audio Output Format",
+                        value=current_config.get("audio_output", {}).get("format", "mp3"),
                         interactive=True
                         )
+
                     config_audio_output_sample_rate = gr.Number(
                         label="Audio Sample Rate",
                         value=current_config.get("audio_output", {}).get("sample_rate", 24000),
