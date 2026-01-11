@@ -869,7 +869,7 @@ def create_gradio_interface():
                                 label="Language",
                                 interactive=True
                                 )
-                        with gr.Row():
+                    with gr.Row():
                             output_format_select = gr.Dropdown(
                                 choices=["wav", "mp3", "opus"],
                                 value=get_audio_output_format(),
