@@ -13,7 +13,7 @@ torchaudio==2.5.1+cu121
 # --- Core Application Dependencies ---
 
 # Chatterbox TTS engine - Install from chatterbox-v2 fork
-chatterbox-tts @ file:./src/chatterbox-main
+chatterbox-tts @ file:./src/chatterbox
 # Core Web Framework
 fastapi
 uvicorn[standard]
