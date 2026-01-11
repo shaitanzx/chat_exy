@@ -243,7 +243,7 @@ async def get_predefined_voices_api() -> List[Dict[str, str]]:
     return utils.get_predefined_voices()
 """
 async def upload_reference_audio_endpoint(files: List[gr.File]) -> Dict[str, Any]:
-    """Original from server.py - upload reference audio"""
+    #Original from server.py - upload reference audio
     ref_path = get_reference_audio_path(ensure_absolute=True)
     uploaded_filenames = []
     errors = []
