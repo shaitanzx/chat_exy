@@ -688,7 +688,7 @@ def on_generate_click(
         output_format=output_format,
         audio_name=audio_name
     )
-    print('aaaaaaaaaaaaaaaaaaaaa',message)
+    gr.Info(message)
     return audio_file
     #if audio_file:
     #    notification = show_notification("Audio generated successfully!", "success")
