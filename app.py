@@ -644,7 +644,7 @@ def on_generate_click(
     
     # Валидация (аналог строк 545-560 script.js)
     if not text or text.strip() == "":
-        return None)
+        return None
     
     if voice_mode == "predefined" and predefined_voice == "none":
         return None
@@ -656,7 +656,7 @@ def on_generate_click(
     # (в Gradio можно добавить чекбоксы для отключения предупреждений)
     
     # Вызов TTS генерации
-    
+
     audio_file, message = custom_tts_endpoint(
         text=text,
         voice_mode=voice_mode,
