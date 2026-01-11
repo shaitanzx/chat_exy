@@ -700,6 +700,7 @@ def create_gradio_interface():
     
     # Загружаем начальные данные
     initial_data = get_ui_initial_data()
+    print('zzzzzzzzzzzzzzz',initial_data)
     if isinstance(initial_data, dict):
         current_config = initial_data.get("config", {})
         appPresets = initial_data.get("presets", [])
