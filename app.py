@@ -822,77 +822,44 @@ def create_gradio_interface():
                                 cfg_weight_slider, speed_factor_slider, seed_input]
                     ) 
 
-                    
-                              
+
+
         with gr.Row():
                 # Настройки генерации (аналог Generation Parameters из index.html)
                 with gr.Accordion("🎛 Generation Parameters", open=True):
                     with gr.Row():
-                        temperature_slider = gr.Slider(
-                            minimum=0.0,
-                            maximum=1.5,
-                            value=get_gen_default_temperature(),
-                            step=0.01,
-                            label="Temperature"
-                        )
-                        temperature_value = gr.Textbox(
-                            value=str(get_gen_default_temperature()),
-                            label="Value",
-                            interactive=False,
-                            scale=0
-                        )
+                        with gr.Column()
+                            temperature_slider = gr.Slider(
+                                minimum=0.0,
+                                maximum=1.5,
+                                value=get_gen_default_temperature(),
+                                step=0.01,
+                                label="Temperature"
+                                )
+                            cfg_weight_slider = gr.Slider(
+                                minimum=0.0,
+                                maximum=2.0,
+                                value=get_gen_default_cfg_weight(),
+                                step=0.01,
+                                label="CFG Weight"
+                                )
                     
-                    with gr.Row():
-                        exaggeration_slider = gr.Slider(
-                            minimum=0.0,
-                            maximum=2.0,
-                            value=get_gen_default_exaggeration(),
-                            step=0.01,
-                            label="Exaggeration"
-                        )
-                        exaggeration_value = gr.Textbox(
-                            value=str(get_gen_default_exaggeration()),
-                            label="Value",
-                            interactive=False,
-                            scale=0
-                        )
-                    
-                    with gr.Row():
-                        cfg_weight_slider = gr.Slider(
-                            minimum=0.0,
-                            maximum=2.0,
-                            value=get_gen_default_cfg_weight(),
-                            step=0.01,
-                            label="CFG Weight"
-                        )
-                        cfg_weight_value = gr.Textbox(
-                            value=str(get_gen_default_cfg_weight()),
-                            label="Value",
-                            interactive=False,
-                            scale=0
-                        )
-                    
-                    with gr.Row():
-                        speed_factor_slider = gr.Slider(
-                            minimum=0.25,
-                            maximum=4.0,
-                            value=get_gen_default_speed_factor(),
-                            step=0.05,
-                            label="Speed Factor"
-                        )
-                        speed_factor_value = gr.Textbox(
-                            value=str(get_gen_default_speed_factor()),
-                            label="Value",
-                            interactive=False,
-                            scale=0
-                        )
-                        speed_warning = gr.Textbox(
-                            value="",
-                            label="Warning",
-                            interactive=False,
-                            visible=False,
-                            elem_classes="warning-text"
-                        )
+                        with gr.Column():
+                            exaggeration_slider = gr.Slider(
+                                minimum=0.0,
+                                maximum=2.0,
+                                value=get_gen_default_exaggeration(),
+                                step=0.01,
+                                label="Exaggeration"
+                                )
+                            speed_factor_slider = gr.Slider(
+                                minimum=0.25,
+                                maximum=4.0,
+                                value=get_gen_default_speed_factor(),
+                                step=0.05,
+                                label="Speed Factor"
+                                )
+
                     
                     with gr.Row():
                         seed_input = gr.Number(
@@ -1018,44 +985,7 @@ def create_gradio_interface():
             outputs=notification_display
         )
         
-        # Динамическое обновление значений слайдеров
-        temperature_slider.change(
-            fn=lambda x: str(x),
-            inputs=[temperature_slider],
-            outputs=[temperature_value]
-        )
-        
-        exaggeration_slider.change(
-            fn=lambda x: str(x),
-            inputs=[exaggeration_slider],
-            outputs=[exaggeration_value]
-        )
-        
-        cfg_weight_slider.change(
-            fn=lambda x: str(x),
-            inputs=[cfg_weight_slider],
-            outputs=[cfg_weight_value]
-        )
-        
-        speed_factor_slider.change(
-            fn=lambda x: str(x),
-            inputs=[speed_factor_slider],
-            outputs=[speed_factor_value]
-        ).then(
-            fn=updateSpeedFactorWarning,
-            inputs=[speed_factor_slider],
-            outputs=[speed_warning]
-        ).then(
-            fn=lambda x: gr.update(visible=(x != "")),
-            inputs=[speed_warning],
-            outputs=[speed_warning]
-        )
-        
-#        chunk_size_slider.change(
-#            fn=lambda x: str(x),
-#            inputs=[chunk_size_slider],
-#            outputs=[chunk_size_value_display]
-#        )
+
         
         # Обновление счетчика символов
         text_area.change(
