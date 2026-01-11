@@ -769,7 +769,33 @@ def create_gradio_interface():
                         label="Chunk Size",
                         visible=True
                     )
+        with gr.Row():
+            with gr.Row():
+                gr.Markdown("🗣 Voice Mode")                
+            with gr.Row():    
+                    voice_mode_radio = gr.Radio(
+                        choices=["predefined", "clone"],
+                        value="predefined",
+                        label="Select Voice Mode"
+                    )
                     
+                    # Предопределенные голоса
+                    with gr.Group(visible=True) as predefined_group:
+                        predefined_voice_select = gr.Dropdown(
+                            choices=populatePredefinedVoices(),
+                            value="none",
+                            label="Predefined Voices",
+                            interactive=True
+                        )
+                    
+                    # Референсные файлы для клонирования
+                    with gr.Group(visible=False) as clone_group:
+                        reference_file_select = gr.Dropdown(
+                            choices=populateReferenceFiles(),
+                            value="none",
+                            label="Reference Audio Files",
+                            interactive=True
+                        )                    
            
         with gr.Row():
                 # Настройки генерации (аналог Generation Parameters из index.html)
@@ -863,32 +889,7 @@ def create_gradio_interface():
                             label="Output Format"
                         )
 
-        with gr.Row():                
-                # Режим голоса (аналог Voice Mode)
-                with gr.Accordion("🗣 Voice Mode", open=True):
-                    voice_mode_radio = gr.Radio(
-                        choices=["predefined", "clone"],
-                        value="predefined",
-                        label="Select Voice Mode"
-                    )
-                    
-                    # Предопределенные голоса
-                    with gr.Group(visible=True) as predefined_group:
-                        predefined_voice_select = gr.Dropdown(
-                            choices=populatePredefinedVoices(),
-                            value="none",
-                            label="Predefined Voices",
-                            interactive=True
-                        )
-                    
-                    # Референсные файлы для клонирования
-                    with gr.Group(visible=False) as clone_group:
-                        reference_file_select = gr.Dropdown(
-                            choices=populateReferenceFiles(),
-                            value="none",
-                            label="Reference Audio Files",
-                            interactive=True
-                        )
+
         with gr.Row():                
                 # Имя аудиофайла
                 with gr.Accordion("📁 Audio File Name", open=False):
