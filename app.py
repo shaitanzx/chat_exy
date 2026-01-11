@@ -788,7 +788,6 @@ def create_gradio_interface():
                     with gr.Group(visible=True) as predefined_group:
                         predefined_voice_select = gr.Dropdown(
                             choices=populatePredefinedVoices(),
-                            "ui_state", {}).get("last_text"
                             value=current_config.get("ui_state", {}).get("last_predefined_voice", "none"),
                             label="Predefined Voices",
                             interactive=True
