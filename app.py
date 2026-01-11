@@ -751,9 +751,6 @@ def create_gradio_interface():
                 # Кнопки действий (аналог flex-wrap из index.html)
         with gr.Row():
                 generate_btn = gr.Button("🎵 Generate Speech",elem_id="generate-btn")
-                copy_btn = gr.Button("📋 Copy")
-                paste_btn = gr.Button("📥 Paste")
-                clear_btn = gr.Button("🗑 Clear")
                 accent_btn = gr.Button("🇷🇺 Stress")
         with gr.Row():        
                     # Уведомления (аналог popup-msg)
