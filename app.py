@@ -157,19 +157,33 @@ def apply_custom_fixes(text: str) -> str:
 
 # --- ОРИГИНАЛЬНЫЕ ФУНКЦИИ ИЗ SERVER.PY ---
 
-async def accentuate_text_endpoint(text: str) -> Dict[str, Any]:
+def on_accent_click(text: str):
     """Original from server.py - accentuate Russian text"""
     if accent_model is None:
-        return {"status": "error", "detail": "RUAccent model not loaded"}
+        gr.Error("RUAccent model not loaded")
+        return text
     
     try:
         raw_text = accent_model.process_all(text)
         accented_text = convert_plus_to_accent(raw_text)
         accented_text = apply_custom_fixes(accented_text)
-        return {"status": "success", "accented_text": accented_text}
+        return accented_text
     except Exception as e:
         logger.error(f"Error in accentuate_text_endpoint: {e}", exc_info=True)
-        return {"status": "error", "detail": f"Accentuation failed: {str(e)}"}
+        gr.Error(f"Accentuation failed: {str(e)}")
+        return text
+#def on_accent_click(text: str) -> Tuple[str, Dict[str, str]]:
+#    """Обработчик кнопки Stress (аналог из script.js)"""
+#    if not text:
+#        return text, show_notification("No text to accentuate", "warning")
+    
+#    result = await accentuate_text_endpoint(text)
+#    if result.get("status") == "success":
+#        return result["accented_text"], show_notification("✅ Stresses are placed!", "success")
+#    else:
+#        return text, show_notification(f"⚠️ {result.get('detail', 'Error')}", "error")
+
+
 
 def get_ui_initial_data() -> Dict[str, Any]:
     """Original from server.py - get initial UI data"""
@@ -665,16 +679,7 @@ async def on_generate_click(
         notification = show_notification(f"Generation failed: {message}", "error")
         return None, f"❌ {message}", notification
 
-async def on_accent_click(text: str) -> Tuple[str, Dict[str, str]]:
-    """Обработчик кнопки Stress (аналог из script.js)"""
-    if not text:
-        return text, show_notification("No text to accentuate", "warning")
-    
-    result = await accentuate_text_endpoint(text)
-    if result.get("status") == "success":
-        return result["accented_text"], show_notification("✅ Stresses are placed!", "success")
-    else:
-        return text, show_notification(f"⚠️ {result.get('detail', 'Error')}", "error")
+
 
 async def on_copy_click(text: str) -> Dict[str, str]:
     """Обработчик кнопки Copy (аналог из script.js)"""
@@ -753,7 +758,7 @@ def create_gradio_interface():
                     placeholder="Enter text here...",
                     lines=8,
                     max_lines=15,
-                    show_copy_button=True,
+                    show_copy_button=False,
                     elem_id="text"
                 )
         with gr.Row():        
@@ -1078,10 +1083,7 @@ def create_gradio_interface():
         accent_btn.click(
             fn=on_accent_click,
             inputs=[text_area],
-            outputs=[text_area, notification_display]
-        ).then(
-            fn=lambda: gr.update(visible=True),
-            outputs=notification_display
+            outputs=[text_area]
         )
         
 
