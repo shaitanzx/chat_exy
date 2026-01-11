@@ -160,17 +160,18 @@ def apply_custom_fixes(text: str) -> str:
 def on_accent_click(text: str):
     """Original from server.py - accentuate Russian text"""
     if accent_model is None:
-        gr.Error("RUAccent model not loaded")
+        gr.Error("⚠️ RUAccent model not loaded")
         return text
     
     try:
         raw_text = accent_model.process_all(text)
         accented_text = convert_plus_to_accent(raw_text)
         accented_text = apply_custom_fixes(accented_text)
+        gr.Info(✅ Stresses are placed!)
         return accented_text
     except Exception as e:
         logger.error(f"Error in accentuate_text_endpoint: {e}", exc_info=True)
-        gr.Error(f"Accentuation failed: {str(e)}")
+        gr.Error(f"⚠️ Accentuation failed: {str(e)}")
         return text
 #def on_accent_click(text: str) -> Tuple[str, Dict[str, str]]:
 #    """Обработчик кнопки Stress (аналог из script.js)"""
