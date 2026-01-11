@@ -788,7 +788,8 @@ def create_gradio_interface():
                     with gr.Group(visible=True) as predefined_group:
                         predefined_voice_select = gr.Dropdown(
                             choices=populatePredefinedVoices(),
-                            value="none",
+                            "ui_state", {}).get("last_text"
+                            value=current_config.get("ui_state", {}).get("last_predefined_voice", "none"),
                             label="Predefined Voices",
                             interactive=True
                         )
@@ -797,7 +798,7 @@ def create_gradio_interface():
                     with gr.Group(visible=False) as clone_group:
                         reference_file_select = gr.Dropdown(
                             choices=populateReferenceFiles(),
-                            value="none",
+                            value=current_config.get("ui_state", {}).get("last_reference_file", "none"),
                             label="Reference Audio Files",
                             interactive=True
                         )                    
@@ -867,12 +868,12 @@ def create_gradio_interface():
                                 label="Language",
                                 interactive=True
                                 )
-                    with gr.Row():
-                            output_format_select = gr.Dropdown(
-                                choices=["wav", "mp3", "opus"],
-                                value=get_audio_output_format(),
-                                label="Output Format"
-                                )
+                    #with gr.Row():
+                    #        output_format_select = gr.Dropdown(
+                    #            choices=["wav", "mp3", "opus"],
+                    #            value=get_audio_output_format(),
+                    #            label="Output Format"
+                    #            )
         with gr.Accordion("📚 Example Presets", open=False):
             with gr.Row():
                 if appPresets:
@@ -972,11 +973,21 @@ def create_gradio_interface():
                         value=current_config.get("tts_engine", {}).get("default_voice_clone", ""),
                         interactive=True
                         )
-                    config_audio_output_format = gr.Textbox(
-                        label="Audio Output Format",
-                        value=current_config.get("audio_output", {}).get("format", "mp3"),
-                        interactive=True
-                        )
+
+
+                    config_audio_output_format = gr.Dropdown(
+                                choices=["wav", "mp3", "opus"],
+                                value=current_config.get("audio_output", {}).get("format", "mp3"),
+                                label="Audio Output Format",
+                                interactive=True
+                                )
+
+
+                    #config_audio_output_format = gr.Textbox(
+                    #    label="Audio Output Format",
+                    #    value=current_config.get("audio_output", {}).get("format", "mp3"),
+                    #    interactive=True
+                    #    )
 
                     config_audio_output_sample_rate = gr.Number(
                         label="Audio Sample Rate",
@@ -1026,7 +1037,7 @@ def create_gradio_interface():
                 language_select,
                 split_text_toggle,
                 chunk_size_slider,
-                output_format_select,
+                config_audio_output_format,
                 audio_name_input
             ],
             outputs=[audio_output, status_output, notification_display]
