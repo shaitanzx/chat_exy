@@ -717,10 +717,11 @@ def create_gradio_interface():
         gr.Markdown(f"# 🎤 {get_ui_title()}")
         
         with gr.Row():
-
+            with gr.Row():
                 gr.Markdown("### Text to synthesize")
+            with gr.Row():
                 gr.Markdown("Enter the text you want to convert to speech. For audiobooks, you can paste long chapters.")
-                
+            with gr.Row():    
                 text_area = gr.Textbox(
                     label="",
                     placeholder="Enter text here...",
@@ -729,9 +730,8 @@ def create_gradio_interface():
                     show_copy_button=True,
                     elem_id="text"
                 )
-                    
-                with gr.Row():
-                    char_count = gr.Textbox(
+            with gr.Row():        
+                char_count = gr.Textbox(
                         label="Characters",
                         value="0",
                         interactive=False,
@@ -740,13 +740,13 @@ def create_gradio_interface():
                     )
                     
                 # Кнопки действий (аналог flex-wrap из index.html)
-                with gr.Row(elem_classes="compact-row"):
-                    generate_btn = gr.Button("🎵 Generate Speech",elem_id="generate-btn")
-                    copy_btn = gr.Button("📋 Copy")
-                    paste_btn = gr.Button("📥 Paste")
-                    clear_btn = gr.Button("🗑 Clear")
-                    accent_btn = gr.Button("🇷🇺 Stress")
-                    
+            with gr.Row():
+                generate_btn = gr.Button("🎵 Generate Speech",elem_id="generate-btn")
+                copy_btn = gr.Button("📋 Copy")
+                paste_btn = gr.Button("📥 Paste")
+                clear_btn = gr.Button("🗑 Clear")
+                accent_btn = gr.Button("🇷🇺 Stress")
+            with gr.Row():        
                     # Уведомления (аналог popup-msg)
                 notification_display = gr.JSON(
                     label="Notifications",
