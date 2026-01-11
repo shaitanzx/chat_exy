@@ -828,7 +828,7 @@ def create_gradio_interface():
                 # Настройки генерации (аналог Generation Parameters из index.html)
                 with gr.Accordion("🎛 Generation Parameters", open=True):
                     with gr.Row():
-                        with gr.Column()
+                        with gr.Column():
                             temperature_slider = gr.Slider(
                                 minimum=0.0,
                                 maximum=1.5,
