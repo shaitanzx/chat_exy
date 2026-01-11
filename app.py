@@ -717,7 +717,7 @@ def create_gradio_interface():
         gr.Markdown(f"# 🎤 {get_ui_title()}")
         
         with gr.Row():
-            with gr.Group(elem_classes="card"):
+
                 gr.Markdown("### Text to synthesize")
                 gr.Markdown("Enter the text you want to convert to speech. For audiobooks, you can paste long chapters.")
                 
@@ -741,13 +741,11 @@ def create_gradio_interface():
                     
                 # Кнопки действий (аналог flex-wrap из index.html)
                 with gr.Row(elem_classes="compact-row"):
-                    generate_btn = gr.Button("🎵 Generate Speech", variant="primary", elem_id="generate-btn")
-                    
-                with gr.Row(elem_classes="compact-row"):
-                    copy_btn = gr.Button("📋 Copy", variant="secondary", size="sm")
-                    paste_btn = gr.Button("📥 Paste", variant="secondary", size="sm")
-                    clear_btn = gr.Button("🗑 Clear", variant="secondary", size="sm")
-                    accent_btn = gr.Button("🇷🇺 Stress", variant="secondary", size="sm")
+                    generate_btn = gr.Button("🎵 Generate Speech",elem_id="generate-btn")
+                    copy_btn = gr.Button("📋 Copy")
+                    paste_btn = gr.Button("📥 Paste")
+                    clear_btn = gr.Button("🗑 Clear")
+                    accent_btn = gr.Button("🇷🇺 Stress")
                     
                     # Уведомления (аналог popup-msg)
                 notification_display = gr.JSON(
@@ -755,7 +753,23 @@ def create_gradio_interface():
                     value={},
                     visible=False
                 )
-            
+        with gr.Row():                
+                # Настройки разделения текста (аналог Split text into chunks)
+                    split_text_toggle = gr.Checkbox(
+                        label="Split text into chunks",
+                        value=True
+                    )
+                    
+                    chunk_size_slider = gr.Slider(
+                        minimum=50,
+                        maximum=1000,
+                        value=120,
+                        step=10,
+                        label="Chunk Size",
+                        visible=True
+                    )
+                    
+           
         with gr.Row():
                 # Настройки генерации (аналог Generation Parameters из index.html)
                 with gr.Accordion("🎛 Generation Parameters", open=True):
@@ -847,29 +861,7 @@ def create_gradio_interface():
                             value=get_audio_output_format(),
                             label="Output Format"
                         )
-        with gr.Row():                
-                # Настройки разделения текста (аналог Split text into chunks)
-                with gr.Accordion("✂️ Text Splitting", open=False):
-                    split_text_toggle = gr.Checkbox(
-                        label="Split text into chunks",
-                        value=True
-                    )
-                    
-                    chunk_size_slider = gr.Slider(
-                        minimum=50,
-                        maximum=1000,
-                        value=120,
-                        step=10,
-                        label="Chunk Size",
-                        visible=True
-                    )
-                    
-                    chunk_size_value_display = gr.Textbox(
-                        value="120",
-                        label="Current Value",
-                        interactive=False,
-                        visible=True
-                    )
+
         with gr.Row():                
                 # Режим голоса (аналог Voice Mode)
                 with gr.Accordion("🗣 Voice Mode", open=True):
@@ -1075,12 +1067,12 @@ def create_gradio_interface():
             outputs=[predefined_group, clone_group]
         )
         
-        # Переключение видимости настроек чанкинга
-        split_text_toggle.change(
-            fn=toggleChunkControlsVisibility,
-            inputs=[split_text_toggle],
-            outputs=[chunk_size_slider, chunk_size_value_display]
-        )
+#        # Переключение видимости настроек чанкинга
+#        split_text_toggle.change(
+#            fn=toggleChunkControlsVisibility,
+#            inputs=[split_text_toggle],
+#            outputs=[chunk_size_slider, chunk_size_value_display]
+#        )
         
         # Автоматическое скрытие уведомлений через 3 секунды
         def hide_notification():
