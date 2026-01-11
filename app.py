@@ -700,9 +700,9 @@ async def on_paste_click() -> Tuple[str, Dict[str, str]]:
     except:
         return "", show_notification("⚠️ Cannot access clipboard", "error")
 
-async def on_clear_click() -> Tuple[str, str, Dict[str, str]]:
+def on_clear_click():
     """Обработчик кнопки Clear (аналог из script.js)"""
-    return "", "0", show_notification("🗑️ Cleared!", "info")
+    return "", "0"
 
 def on_text_input(text: str) -> str:
     """Обработчик ввода текста (аналог из script.js)"""
@@ -1075,10 +1075,7 @@ def create_gradio_interface():
         clear_btn.click(
             fn=on_clear_click,
             inputs=[],
-            outputs=[text_area, char_count, notification_display]
-        ).then(
-            fn=lambda: gr.update(visible=True),
-            outputs=notification_display
+            outputs=[text_area, char_count]
         )
         
         accent_btn.click(
