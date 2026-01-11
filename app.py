@@ -591,7 +591,7 @@ def applyPreset(preset_name: str, presets: List[Dict[str, Any]]) -> tuple:
     for preset in presets:
         if preset.get("name") == preset_name:
             # Извлекаем prompt (может быть на верхнем уровне)
-            prompt = preset.get("prompt", "")  # ← если его нет — пустая строка
+            
             
             # Извлекаем параметры из вложенного словаря 'params'
             params = preset.get("params", {})
@@ -602,10 +602,10 @@ def applyPreset(preset_name: str, presets: List[Dict[str, Any]]) -> tuple:
             speed_factor = float(params.get("speed_factor", 1.0))
             seed = int(params.get("seed", -1))
             
-            return (prompt, temperature, exaggeration, cfg_weight, speed_factor, seed)
+            return (temperature, exaggeration, cfg_weight, speed_factor, seed)
     
     # Если пресет не найден — значения по умолчанию
-    return ("", 0.7, 1.0, 7.0, 1.0, -1)
+    return (0.7, 1.0, 7.0, 1.0, -1)
 
 # --- ОБРАБОТЧИКИ СОБЫТИЙ КНОПОК (аналог событий из script.js) ---
 
@@ -899,7 +899,7 @@ def create_gradio_interface():
                         btn.click(
                             fn=lambda p=preset: applyPreset(p.get("name", ""), appPresets),
                             inputs=[],
-                            outputs=[text_area, temperature_slider, exaggeration_slider, 
+                            outputs=[temperature_slider, exaggeration_slider, 
                                     cfg_weight_slider, speed_factor_slider, seed_input]
                       )
 
