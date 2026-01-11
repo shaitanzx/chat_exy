@@ -743,7 +743,13 @@ def create_gradio_interface():
         with gr.Row():    
                 text_area = gr.Textbox(
                     label="",
-                    value=current_config.get("ui_state", {}).get("last_text", ""),
+                    value=current_config.get("ui_state", {}).get("last_text", "\u041A\u043E\u0433\u0434\u0430\u0301-\u0442\u043E \u0433\u0435\u0440\
+    \u043E\u0301\u0439 \u0431\u044B\u043B \u043E\u0301\u0444\u0438\u0441\u043D\u044B\
+    \u043C \u0441\u043E\u0442\u0440\u0443\u0301\u0434\u043D\u0438\u043A\u043E\u043C\
+    , \u043D\u0435 \u0448\u0438\u0301\u0431\u043A\u043E \u0440\u0432\u0430\u0301\u0432\
+    \u0448\u0438\u043C\u0441\u044F \u0447\u0435\u0433\u043E\u0301-\u0442\u043E \u0434\
+    \u043E\u0441\u0442\u0438\u0433\u0430\u0301\u0442\u044C \u0432 \u0436\u0438\u0301\
+    \u0437\u043D\u0438."),
                     placeholder="Enter text here...",
                     lines=8,
                     max_lines=15,
@@ -753,7 +759,7 @@ def create_gradio_interface():
         with gr.Row():        
                 char_count = gr.Textbox(
                         label="Characters",
-                        value="0",
+                        value="94",
                         interactive=False,
                         scale=1,
                         elem_id="char-count"
