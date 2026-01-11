@@ -354,7 +354,7 @@ async def upload_predefined_voice_endpoint(files: List[gr.File]) -> Dict[str, An
     }
 """
 # --- ОСНОВНАЯ TTS ФУНКЦИЯ (аналог custom_tts_endpoint из server.py) ---
-async def custom_tts_endpoint(
+def custom_tts_endpoint(
     text: str,
     voice_mode: str,
     predefined_voice_id: Optional[str] = None,
