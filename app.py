@@ -178,7 +178,7 @@ def get_ui_initial_data() -> Dict[str, Any]:
         full_config = get_full_config_for_template()
         print('++++++++',full_config)
         reference_files = utils.get_valid_reference_files()
-        print('++++++++',freference_files)
+        print('++++++++',reference_files)
         predefined_voices = utils.get_predefined_voices()
         print('++++++++',predefined_voices)
         
