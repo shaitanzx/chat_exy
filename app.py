@@ -275,8 +275,8 @@ async def get_reference_files_api() -> List[str]:
 async def get_predefined_voices_api() -> List[Dict[str, str]]:
     """Original from server.py - get predefined voices"""
     return utils.get_predefined_voices()
-"""
-async def upload_reference_audio_endpoint(files: List[gr.File]) -> Dict[str, Any]:
+
+def upload_reference_audio_endpoint(files: List[gr.File]) -> Dict[str, Any]:
     #Original from server.py - upload reference audio
     ref_path = get_reference_audio_path(ensure_absolute=True)
     uploaded_filenames = []
@@ -324,7 +324,7 @@ async def upload_reference_audio_endpoint(files: List[gr.File]) -> Dict[str, Any
         "all_reference_files": all_files,
         "errors": errors
     }
-
+"""
 async def upload_predefined_voice_endpoint(files: List[gr.File]) -> Dict[str, Any]:
     #Original from server.py - upload predefined voice
     predefined_voices_path = get_predefined_voices_path(ensure_absolute=True)
@@ -598,12 +598,12 @@ def updateSpeedFactorWarning(speed_factor: float) -> str:
 def populatePredefinedVoices() -> List[str]:
     """Аналог populatePredefinedVoices из script.js"""
     voices = utils.get_predefined_voices()
-    return ["none"] + [voice.get("filename", "") for voice in voices]
+    return [voice.get("filename", "") for voice in voices]
 
 def populateReferenceFiles() -> List[str]:
     """Аналог populateReferenceFiles из script.js"""
     files = utils.get_valid_reference_files()
-    return ["none"] + files
+    return files
 
 def populatePresets() -> List[Dict[str, Any]]:
     """Аналог populatePresets из script.js"""
@@ -706,6 +706,45 @@ async def on_restart_click() -> Dict[str, str]:
     """Обработчик кнопки Restart Server (аналог из script.js)"""
     # В Gradio просто показываем сообщение
     return show_notification("🔄 Server restart initiated...", "info")
+
+def on_reference_upload(files: List[gr.File]):
+    """
+    Обработчик загрузки референсных файлов.
+    Автоматически обновляет список файлов после загрузки.
+    """
+    #if not files:
+    #    return populateReferenceFiles(), show_notification("⚠️ No files selected", "warning")
+    
+    try:
+        # Вызываем оригинальную функцию загрузки
+        result =  upload_reference_audio_endpoint(files)
+        
+        #if "errors" in result and result["errors"]:
+        #    error_msg = result["errors"][0].get("error", "Upload failed")
+        #    return populateReferenceFiles(), show_notification(f"❌ {error_msg}", "error")
+        
+        # Получаем обновленный список файлов
+        all_files = result.get("all_reference_files", [])
+        uploaded_files = result.get("uploaded_files", [])
+        
+        if uploaded_files:
+            # Выбираем первый загруженный файл по умолчанию
+            default_selection = uploaded_files[0] if uploaded_files else "none"
+            updated_options = ["none"] + all_files
+            
+            #notification = show_notification(
+            #    f"✅ Uploaded: {', '.join(uploaded_files[:3])}" + 
+            #    ("..." if len(uploaded_files) > 3 else ""),
+            #    "success"
+            #)
+            
+            return updated_options
+        else:
+            return populateReferenceFiles()
+            
+    except Exception as e:
+        logger.error(f"Error in reference upload: {e}", exc_info=True)
+        return populateReferenceFiles(), show_notification(f"❌ Upload failed: {str(e)}", "error")
 
 # --- СОЗДАНИЕ GRADIO ИНТЕРФЕЙСА ---
 
@@ -817,7 +856,24 @@ def create_gradio_interface():
                             value=current_config.get("ui_state", {}).get("last_reference_file", "none"),
                             label="Reference Audio Files",
                             interactive=True
-                        )                    
+                        ) 
+
+                        # Кнопки для работы с референсными файлами ТОЛЬКО ЗДЕСЬ
+
+                        reference_upload_btn = gr.UploadButton(
+                            "📁 Upload Reference Audio",
+                            file_types=[".wav", ".mp3"],
+                            file_count="multiple",
+                            variant="secondary",
+                            size="sm",
+                            visible=True
+                            )
+
+
+
+
+
+
         # Секция с пресетами
 
 #                    preset_buttons.append(btn)
@@ -1035,7 +1091,11 @@ def create_gradio_interface():
             """)
         
         # --- ПРИВЯЗКА ОБРАБОТЧИКОВ СОБЫТИЙ ---
-        
+        reference_upload_btn.upload(
+            fn=on_reference_upload,
+            inputs=[reference_upload_btn],
+            outputs=[reference_file_select]
+
         # Основная кнопка Generate
         generate_btn.click(
             fn=on_generate_click,
