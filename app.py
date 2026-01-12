@@ -747,6 +747,43 @@ def on_reference_upload(files: List[gr.File]):
     except Exception as e:
         logger.error(f"Error in reference upload: {e}", exc_info=True)
         return populateReferenceFiles(), show_notification(f"❌ Upload failed: {str(e)}", "error")
+def toggle_predefined_audio(selected_file: str) -> Tuple[Optional[str], str, Dict, Dict]:
+    """
+    Переключает воспроизведение/остановку выбранного файла Reference Audio.
+    Аудио автоматически начинает воспроизводиться.
+    """
+    global reference_playing_state
+    
+    #if not selected_file:
+    #    gr.Warning("⚠️ Please select a reference file")
+    #    return None, "▶️ Play/Stop", gr.update(visible=False, autoplay=False), gr.update(visible=False)
+    
+    voice_path = get_predefined_voices_path(ensure_absolute=True)
+    file_path = voice_path / selected_file
+    
+    # Проверяем существует ли файл
+    #if not file_path.exists():
+    #    reference_playing_state = {"is_playing": False, "current_file": None}
+    #    gr.Error(f"❌ File not found: {selected_file}")
+    #    return None, "▶️ Play/Stop", gr.update(visible=False, autoplay=False), gr.update(visible=False)
+    
+    # Если уже воспроизводится этот файл - останавливаем
+    if reference_playing_state["is_playing"] and reference_playing_state["current_file"] == selected_file:
+        reference_playing_state = {"is_playing": False, "current_file": None}
+        gr.Info(f"⏸️ Stopped: {selected_file}")
+        return None, "▶️ Play/Stop", gr.update(visible=False, autoplay=False), gr.update(visible=False)
+    
+    # Начинаем воспроизведение нового файла с автозапуском
+    reference_playing_state = {"is_playing": True, "current_file": selected_file}
+    gr.Info(f"🎵 Playing: {selected_file}")
+    
+    return (
+        str(file_path),  # путь к файлу
+        "⏸️ Play/Stop",  # текст кнопки
+        gr.update(visible=True, autoplay=True),  # аудиоплеер с автозапуском
+        gr.update(visible=True)  # делаем плеер видимым
+    )
+
 def toggle_reference_audio(selected_file: str) -> Tuple[Optional[str], str, Dict, Dict]:
     """
     Переключает воспроизведение/остановку выбранного файла Reference Audio.
@@ -754,18 +791,18 @@ def toggle_reference_audio(selected_file: str) -> Tuple[Optional[str], str, Dict
     """
     global reference_playing_state
     
-    if not selected_file:
-        gr.Warning("⚠️ Please select a reference file")
-        return None, "▶️ Play/Stop", gr.update(visible=False, autoplay=False), gr.update(visible=False)
+    #if not selected_file:
+    #    gr.Warning("⚠️ Please select a reference file")
+    #    return None, "▶️ Play/Stop", gr.update(visible=False, autoplay=False), gr.update(visible=False)
     
     ref_path = get_reference_audio_path(ensure_absolute=True)
     file_path = ref_path / selected_file
     
     # Проверяем существует ли файл
-    if not file_path.exists():
-        reference_playing_state = {"is_playing": False, "current_file": None}
-        gr.Error(f"❌ File not found: {selected_file}")
-        return None, "▶️ Play/Stop", gr.update(visible=False, autoplay=False), gr.update(visible=False)
+    #if not file_path.exists():
+    #    reference_playing_state = {"is_playing": False, "current_file": None}
+    #    gr.Error(f"❌ File not found: {selected_file}")
+    #    return None, "▶️ Play/Stop", gr.update(visible=False, autoplay=False), gr.update(visible=False)
     
     # Если уже воспроизводится этот файл - останавливаем
     if reference_playing_state["is_playing"] and reference_playing_state["current_file"] == selected_file:
@@ -894,6 +931,13 @@ def create_gradio_interface():
                             label="Predefined Voices",
                             interactive=True
                         )
+                        predefined_play_btn = gr.Button(
+                                "▶️ Play/Stop", 
+                                variant="secondary", 
+                                size="sm",
+                                scale=1,
+                                min_width=80
+                            )
                     
                     # Референсные файлы для клонирования
                     with gr.Group(visible=False) as clone_group:
@@ -1156,6 +1200,18 @@ def create_gradio_interface():
             """)
         
         # --- ПРИВЯЗКА ОБРАБОТЧИКОВ СОБЫТИЙ ---
+        predefined_play_btn.click(
+            fn=toggle_reference_audio,
+            inputs=[predefined_file_select],
+            outputs=[
+                reference_audio_player,  # основной аудиоплеер
+                reference_play_btn,      # текст кнопки
+                reference_audio_player,  # обновление видимости и autoplay
+                reference_audio_player   # делаем видимым
+            ]
+        
+        
+        
         reference_play_btn.click(
             fn=toggle_reference_audio,
             inputs=[reference_file_select],
