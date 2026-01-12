@@ -910,8 +910,10 @@ def create_gradio_interface():
                                 label="Predefined Voices",
                                 interactive=True
                             )
-                        
-                            predefined_play_btn = gr.Button("▶️ Play/Stop")
+                        with gr.Row():    
+                            predefined_play_btn = gr.Button(
+                                "▶️ Play/Stop"
+                            )
                     
                     # Референсные файлы для клонирования
                     with gr.Group(visible=False) as clone_group:
