@@ -969,16 +969,7 @@ def create_gradio_interface():
 #                                cfg_weight_slider, speed_factor_slider, seed_input]
 #                    ) 
 
-        # Секция с результатами
-        with gr.Row():
-            with gr.Column():
-                # Аудиоплеер
-                audio_output = gr.Audio(
-                    label="Generated Audio",
-                    type="filepath",
-                    interactive=False,
-                    visible=False
-                )
+
 
         with gr.Row():
                 # Настройки генерации (аналог Generation Parameters из index.html)
@@ -1056,7 +1047,16 @@ def create_gradio_interface():
                         value=""
                     )
         
-
+        # Секция с результатами
+        with gr.Row():
+            with gr.Column():
+                # Аудиоплеер
+                audio_output = gr.Audio(
+                    label="Generated Audio",
+                    type="filepath",
+                    interactive=False,
+                    visible=False
+                )
                 
                 # Статус генерации
                 #status_output = gr.Textbox(
