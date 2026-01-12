@@ -911,34 +911,25 @@ def create_gradio_interface():
                                 interactive=True
                             )
                         with gr.Row():    
-                            predefined_play_btn = gr.Button(
-                                "▶️ Play/Stop"
-                            )
+                            predefined_play_btn = gr.Button("▶️ Play/Stop")
                     
                     # Референсные файлы для клонирования
                     with gr.Group(visible=False) as clone_group:
-                        reference_file_select = gr.Dropdown(
-                            choices=populateReferenceFiles(),
-                            value=current_config.get("ui_state", {}).get("last_reference_file", "none"),
-                            label="Reference Audio Files",
-                            interactive=True
-                        ) 
-                        reference_play_btn = gr.Button(
-                                "▶️ Play/Stop", 
-                                variant="secondary", 
-                                size="sm",
-                                scale=1,
-                                min_width=80
+                        with gr.Row():
+                            reference_file_select = gr.Dropdown(
+                                choices=populateReferenceFiles(),
+                                value=current_config.get("ui_state", {}).get("last_reference_file", "none"),
+                                label="Reference Audio Files",
+                                interactive=True
                             )
+                        with gr.Row(): 
+                            reference_play_btn = gr.Button("▶️ Play/Stop")
                         # Кнопки для работы с референсными файлами ТОЛЬКО ЗДЕСЬ
-
-                        reference_upload_btn = gr.UploadButton(
-                            "📁 Upload Reference Audio",
-                            file_types=[".wav", ".mp3"],
-                            file_count="multiple",
-                            variant="secondary",
-                            size="sm",
-                            visible=True
+                        with gr.Row():
+                            reference_upload_btn = gr.UploadButton("📁 Upload Reference Audio",
+                                file_types=[".wav", ".mp3"],
+                                file_count="single",
+                                visible=True
                             )
 
                     reference_audio_player = gr.Audio(
