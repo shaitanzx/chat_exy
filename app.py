@@ -747,16 +747,16 @@ def on_reference_upload(files: List[gr.File]):
     except Exception as e:
         logger.error(f"Error in reference upload: {e}", exc_info=True)
         return populateReferenceFiles(), show_notification(f"❌ Upload failed: {str(e)}", "error")
-def toggle_reference_audio(selected_file: str) -> Tuple[Optional[str], str, Dict]:
+def toggle_reference_audio(selected_file: str) -> Tuple[Optional[str], str, Dict, Dict]:
     """
     Переключает воспроизведение/остановку выбранного файла Reference Audio.
-    Одна кнопка для play/stop.
+    Аудио автоматически начинает воспроизводиться.
     """
     global reference_playing_state
     
     if not selected_file:
         gr.Warning("⚠️ Please select a reference file")
-        return None, "▶️ Play/Stop", gr.update(visible=False)
+        return None, "▶️ Play/Stop", gr.update(visible=False, autoplay=False), gr.update(visible=False)
     
     ref_path = get_reference_audio_path(ensure_absolute=True)
     file_path = ref_path / selected_file
@@ -765,26 +765,32 @@ def toggle_reference_audio(selected_file: str) -> Tuple[Optional[str], str, Dict
     if not file_path.exists():
         reference_playing_state = {"is_playing": False, "current_file": None}
         gr.Error(f"❌ File not found: {selected_file}")
-        return None, "▶️ Play/Stop", gr.update(visible=False)
+        return None, "▶️ Play/Stop", gr.update(visible=False, autoplay=False), gr.update(visible=False)
     
     # Если уже воспроизводится этот файл - останавливаем
     if reference_playing_state["is_playing"] and reference_playing_state["current_file"] == selected_file:
         reference_playing_state = {"is_playing": False, "current_file": None}
         gr.Info(f"⏸️ Stopped: {selected_file}")
-        return None, "▶️ Play/Stop", gr.update(visible=False)
+        return None, "▶️ Play/Stop", gr.update(visible=False, autoplay=False), gr.update(visible=False)
     
-    # Начинаем воспроизведение нового файла
+    # Начинаем воспроизведение нового файла с автозапуском
     reference_playing_state = {"is_playing": True, "current_file": selected_file}
     gr.Info(f"🎵 Playing: {selected_file}")
-    return str(file_path), "⏸️ Play/Stop", gr.update(visible=True)
+    
+    return (
+        str(file_path),  # путь к файлу
+        "⏸️ Play/Stop",  # текст кнопки
+        gr.update(visible=True, autoplay=True),  # аудиоплеер с автозапуском
+        gr.update(visible=True)  # делаем плеер видимым
+    )
 
-def on_reference_selection_change(selected_file: str) -> Tuple[str, Dict]:
+def on_reference_selection_change(selected_file: str) -> Tuple[str, Dict, Dict]:
     """
     При изменении выбора файла в dropdown останавливает воспроизведение.
     """
     global reference_playing_state
     reference_playing_state = {"is_playing": False, "current_file": None}
-    return "▶️ Play/Stop", gr.update(visible=False)
+    return "▶️ Play/Stop", gr.update(visible=False, autoplay=False), gr.update(visible=False)
 
 # --- СОЗДАНИЕ GRADIO ИНТЕРФЕЙСА ---
 
@@ -920,8 +926,13 @@ def create_gradio_interface():
                             label="",
                             interactive=False,
                             show_label=False,
-                            elem_id="reference-audio-player"
-                        )        
+                            elem_id="reference-audio-player",
+                            autoplay=False  # изначально выключено
+                        )  
+                    reference_audio_trigger = gr.Audio(
+                            visible=False,
+                            elem_id="reference-audio-trigger"
+                        )      
 
 
 
@@ -1148,7 +1159,12 @@ def create_gradio_interface():
         reference_play_btn.click(
             fn=toggle_reference_audio,
             inputs=[reference_file_select],
-            outputs=[reference_audio_player, reference_play_btn, reference_audio_player]
+            outputs=[
+                reference_audio_player,  # основной аудиоплеер
+                reference_play_btn,      # текст кнопки
+                reference_audio_player,  # обновление видимости и autoplay
+                reference_audio_player   # делаем видимым
+            ]
         )
         reference_upload_btn.upload(
             fn=on_reference_upload,
