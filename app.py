@@ -691,7 +691,7 @@ def on_generate_click(
         audio_name=audio_name
     )
     gr.Info(message)
-    return audio_file
+    return gr.update (value=audio_file, visible=True)
     #if audio_file:
     #    notification = show_notification("Audio generated successfully!", "success")
     #    return audio_file, f"✅ {message}", notification
@@ -969,7 +969,16 @@ def create_gradio_interface():
 #                                cfg_weight_slider, speed_factor_slider, seed_input]
 #                    ) 
 
-
+        # Секция с результатами
+        with gr.Row():
+            with gr.Column():
+                # Аудиоплеер
+                audio_output = gr.Audio(
+                    label="Generated Audio",
+                    type="filepath",
+                    interactive=False,
+                    visible=False
+                )
 
         with gr.Row():
                 # Настройки генерации (аналог Generation Parameters из index.html)
@@ -1047,22 +1056,14 @@ def create_gradio_interface():
                         value=""
                     )
         
-        # Секция с результатами
-        with gr.Row():
-            with gr.Column():
-                # Аудиоплеер
-                audio_output = gr.Audio(
-                    label="Generated Audio",
-                    type="filepath",
-                    interactive=False
-                )
+
                 
                 # Статус генерации
-                status_output = gr.Textbox(
-                    label="Generation Status",
-                    interactive=False,
-                    lines=3
-                )
+                #status_output = gr.Textbox(
+                #    label="Generation Status",
+                #    interactive=False,
+                #    lines=3
+                #)
         # Секция конфигурации сервера (аналог Server Configuration из index.html)
         with gr.Accordion("⚙️ Server Configuration", open=False):
             gr.Markdown("""
