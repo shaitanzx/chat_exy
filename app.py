@@ -780,8 +780,8 @@ def toggle_reference_audio(selected_file: str) -> Tuple[Optional[str], str, Dict
     return (
         str(file_path),  # путь к файлу
         "⏸️ Play/Stop",  # текст кнопки
-        gr.update(visible=False, autoplay=True),  # аудиоплеер с автозапуском
-        gr.update(visible=False)  # делаем плеер видимым
+        gr.update(visible=True, autoplay=True),  # аудиоплеер с автозапуском
+        gr.update(visible=True)  # делаем плеер видимым
     )
 
 #def on_reference_selection_change(selected_file: str) -> Tuple[str, Dict, Dict]:
