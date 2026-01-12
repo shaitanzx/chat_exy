@@ -780,17 +780,17 @@ def toggle_reference_audio(selected_file: str) -> Tuple[Optional[str], str, Dict
     return (
         str(file_path),  # путь к файлу
         "⏸️ Play/Stop",  # текст кнопки
-        gr.update(visible=True, autoplay=True),  # аудиоплеер с автозапуском
-        gr.update(visible=True)  # делаем плеер видимым
+        gr.update(visible=False, autoplay=True),  # аудиоплеер с автозапуском
+        gr.update(visible=False)  # делаем плеер видимым
     )
 
-def on_reference_selection_change(selected_file: str) -> Tuple[str, Dict, Dict]:
-    """
-    При изменении выбора файла в dropdown останавливает воспроизведение.
-    """
-    global reference_playing_state
-    reference_playing_state = {"is_playing": False, "current_file": None}
-    return "▶️ Play/Stop", gr.update(visible=False, autoplay=False), gr.update(visible=False)
+#def on_reference_selection_change(selected_file: str) -> Tuple[str, Dict, Dict]:
+#    """
+#    При изменении выбора файла в dropdown останавливает воспроизведение.
+#    """
+#    global reference_playing_state
+#    reference_playing_state = {"is_playing": False, "current_file": None}
+#    return "▶️ Play/Stop", gr.update(visible=False, autoplay=False), gr.update(visible=False)
 
 # --- СОЗДАНИЕ GRADIO ИНТЕРФЕЙСА ---
 
