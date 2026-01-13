@@ -1222,7 +1222,7 @@ def create_gradio_interface():
                 config_audio_output_format,
                 audio_name_input
             ],outputs=[audio_output]) \
-            .then (lambda: (gr.update(interactive=True)),outputs=[generate_btn)
+            .then (lambda: (gr.update(interactive=True)),outputs=[generate_btn])
         
         # Кнопки управления текстом
 
