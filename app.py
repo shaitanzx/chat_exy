@@ -862,7 +862,7 @@ def create_gradio_interface():
         
         # Заголовок (аналог navbar из index.html)
         gr.Markdown(f"# 🎤 {get_ui_title()}")
-        with gr.Tab("MTL"):
+        with gr.Tabs():
 
             with gr.Tab("MTL"):
         
@@ -1072,7 +1072,7 @@ def create_gradio_interface():
                     - Experiment with **Temperature** and other generation parameters to fine-tune output.
                     """)
 
-            with gr.Tabs("⚙️ Server Configuration"):
+            with gr.Tab("⚙️ Server Configuration"):
         # Секция конфигурации сервера (аналог Server Configuration из index.html)
             #with gr.Accordion("⚙️ Server Configuration", open=False):
                 gr.Markdown("""
