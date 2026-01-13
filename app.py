@@ -865,7 +865,7 @@ def create_gradio_interface():
         with gr.Tabs():
 
             # === VC TAB: Voice Conversion Tab ===
-            with gr.Tab("Voice Conversion (VC)"):
+            with gr.Tab("🎤 Voice Conversion (VC)"):
                 gr.Markdown("## Voice Conversion\nConvert one speaker's voice to sound like another speaker using a target/reference voice audio.")
                 with gr.Row():
                     vc_input_audio = gr.Audio(sources=["upload", "microphone"], type="filepath", label="Input Audio (to convert)")
