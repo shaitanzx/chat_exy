@@ -858,13 +858,50 @@ def create_gradio_interface():
         label = LANGUAGE_LABELS.get(lang_code, lang_code)
         language_options.append(f"{label} ({lang_code})")
     
-    with gr.Blocks(title="Chatterbox TTS Server") as demo:
+    with gr.Blocks(title="Chatterbox Server") as demo:
         
         # Заголовок (аналог navbar из index.html)
         gr.Markdown(f"# 🎤 {get_ui_title()}")
         with gr.Tabs():
 
-            with gr.Tab("MTL"):
+            # === VC TAB: Voice Conversion Tab ===
+            with gr.Tab("Voice Conversion (VC)"):
+                gr.Markdown("## Voice Conversion\nConvert one speaker's voice to sound like another speaker using a target/reference voice audio.")
+                with gr.Row():
+                    vc_input_audio = gr.Audio(sources=["upload", "microphone"], type="filepath", label="Input Audio (to convert)")
+                    vc_target_audio = gr.Audio(sources=["upload", "microphone"], type="filepath", label="Target Voice Audio")
+                vc_pitch_shift = gr.Number(value=0, label="Pitch", step=0.5, interactive=True)
+                vc_convert_btn = gr.Button("Run Voice Conversion")
+                vc_output_files = gr.Files(label="Converted VC Audio File(s)")
+                vc_output_audio = gr.Audio(label="VC Output Preview", interactive=True)
+
+                def _vc_wrapper(input_audio_path, target_voice_audio_path, disable_watermark, pitch_shift):
+                    # Defensive: None means Gradio didn't get file yet
+                    if not input_audio_path or not os.path.exists(input_audio_path):
+                        raise gr.Error("Please upload or record an input audio file.")
+                    if not target_voice_audio_path or not os.path.exists(target_voice_audio_path):
+                        raise gr.Error("Please upload or record a target/reference voice audio file.")
+
+                    sr, out_wav = voice_conversion(
+                        input_audio_path,
+                        target_voice_audio_path,
+                        disable_watermark=disable_watermark,
+                        pitch_shift=pitch_shift
+                    )
+                    os.makedirs("output", exist_ok=True)
+                    base = os.path.splitext(os.path.basename(input_audio_path))[0]
+                    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S_%f")[:-3]
+                    out_path = f"output/{base}_vc_{timestamp}.wav"
+                    sf.write(out_path, out_wav, sr)
+                    return [out_path], out_path  # Files and preview
+
+                vc_convert_btn.click(
+                    fn=_vc_wrapper,
+                    inputs=[vc_input_audio, vc_target_audio, disable_watermark_checkbox, vc_pitch_shift],
+                    outputs=[vc_output_files, vc_output_audio],
+                )
+
+            with gr.Tab("🎵 MTL Generation"):
         
                 with gr.Row():
                         gr.Markdown("### Text to synthesize")
