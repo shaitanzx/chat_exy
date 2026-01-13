@@ -1205,7 +1205,7 @@ def create_gradio_interface():
             outputs=[reference_file_select]
         )
         # Основная кнопка Generate
-        generate_btn.click(lambda: (gr.update(interactive=False)),outputs=[generate_btn) \
+        generate_btn.click(lambda: (gr.update(interactive=False)),outputs=[generate_btn]) \
             .then(fn=on_generate_click,inputs=[
                 text_area,
                 voice_mode_radio,
