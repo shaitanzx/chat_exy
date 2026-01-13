@@ -236,7 +236,7 @@ def get_ui_initial_data() -> Dict[str, Any]:
         logger.error(f"Error preparing initial UI data: {e}", exc_info=True)
         return {"error": "Failed to load initial data"}
 
-async def save_settings_endpoint(settings_data: Dict[str, Any]) -> Dict[str, Any]:
+def save_settings_endpoint((settings_data: Dict[str, Any]) -> Dict[str, Any]):
     """Original from server.py - save settings"""
     logger.info("Saving settings")
     try:
@@ -1147,7 +1147,7 @@ def create_gradio_interface():
             # Кнопки управления конфигурацией
             with gr.Row():
                 save_config_btn = gr.Button("💾 Save Server Configuration", variant="primary")
-                restart_server_btn = gr.Button("🔄 Restart Server", variant="secondary", visible=False)
+                #restart_server_btn = gr.Button("🔄 Restart Server", variant="secondary", visible=False)
             
             # Статус конфигурации
             config_status = gr.Textbox(
@@ -1178,7 +1178,16 @@ def create_gradio_interface():
                 reference_audio_player   # autoplay
             ]
         )
-        
+        save_config_btn.click(
+            fn=save_settings_endpoint,
+            inputs=[initial_data],
+            outputs=[
+                reference_audio_player,  # основной аудиоплеер
+                predefined_play_btn,     # текст кнопки
+                reference_audio_player,  # видимость
+                reference_audio_player   # autoplay
+            ]
+        )
         
         reference_play_btn.click(
             fn=lambda file: toggle_voice_audio(file, "clone"),
@@ -1196,9 +1205,8 @@ def create_gradio_interface():
             outputs=[reference_file_select]
         )
         # Основная кнопка Generate
-        generate_btn.click(
-            fn=on_generate_click,
-            inputs=[
+        generate_btn.click(lambda: (gr.update(interactive=False)),outputs=[generate_btn) \
+            .then(fn=on_generate_click,inputs=[
                 text_area,
                 voice_mode_radio,
                 predefined_voice_select,
@@ -1213,9 +1221,8 @@ def create_gradio_interface():
                 chunk_size_slider,
                 config_audio_output_format,
                 audio_name_input
-            ],
-            outputs=[audio_output]
-            )
+            ],outputs=[audio_output]) \
+            .then (lambda: (gr.update(interactive=True)),outputs=[generate_btn)
         
         # Кнопки управления текстом
 
