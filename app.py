@@ -1208,14 +1208,9 @@ def create_gradio_interface():
         )
         save_config_btn.click(
             fn=save_settings_endpoint,
-            inputs=[
-                config_tts_engine_reference_audio_path,
-                config_tts_engine_predefined_voices_path,
-                config_paths_output,
-                config_tts_engine_default_voice_id,
-                config_tts_engine_default_voice_clone,
-                config_audio_output_format,
-                config_audio_output_sample_rate]
+            inputs=[config_tts_engine_device, reference_audio_path, predefined_voices_path, default_voice_id, default_voice_clone,
+                config_paths_model_cache,config_paths_output,temperature_slider, exaggeration_slider,cfg_weight_slider, seed_input,
+                speed_factor_slider, language, config_audio_output_format,config_audio_output_sample_rate]
         )
         
         reference_play_btn.click(
