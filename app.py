@@ -1030,6 +1030,11 @@ def get_play_component():
                                 fn=on_reference_upload,
                                 inputs=[reference_upload_btn],
                                 outputs=[reference_file_select]
+                                )
+                            voice_mode_radio.change(
+                                fn=toggleVoiceOptionsDisplay,
+                                inputs=[voice_mode_radio],
+                                outputs=[predefined_group, clone_group]
                                 )    
                 return  voice_mode_radio, predefined_voice_select, reference_file_select   
 def create_gradio_interface():
@@ -1392,11 +1397,7 @@ def create_gradio_interface():
         )
         
         # Переключение режимов голоса
-        voice_mode_radio.change(
-            fn=toggleVoiceOptionsDisplay,
-            inputs=[voice_mode_radio],
-            outputs=[predefined_group, clone_group]
-        )
+
         
 #        # Переключение видимости настроек чанкинга
 #        split_text_toggle.change(
