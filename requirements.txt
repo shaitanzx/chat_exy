@@ -2,8 +2,8 @@
 # This file ensures a compatible set of CUDA-enabled torch packages are installed.
 
 # Use the official PyTorch package index for CUDA 12.1.
-###--extra-index-url https://download.pytorch.org/whl/cu121
---extra-index-url https://download.pytorch.org/whl/cpu
+--extra-index-url https://download.pytorch.org/whl/cu121
+###--extra-index-url https://download.pytorch.org/whl/cpu
 
 
 # Pinning a compatible set of torch-related libraries is crucial to avoid dependency conflicts.
