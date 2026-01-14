@@ -120,7 +120,7 @@ model_device: Optional[str] = (
     None  # Stores the resolved device string ('cuda' or 'cpu')
 )
 # ↓↓↓ ДОБАВИТЬ ЭТИ ПЕРЕМЕННЫЕ ДЛЯ VC ↓↓↓
-vc_model: Optional[ChatterboxVoiceConversion] = None
+vc_model: Optional[ChatterboxVC] = None
 VC_MODEL_LOADED: bool = False
 # ↑↑↑ ДОБАВИТЬ ЭТИ ПЕРЕМЕННЫЕ ДЛЯ VC ↑↑↑
 
