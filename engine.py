@@ -260,7 +260,7 @@ def load_model() -> bool:
         try:
             # Пытаемся загрузить VC модель (но не прерываем загрузку если не получится)
             logger.info(f"Attempting to load Voice Conversion model on {model_device}...")
-            vc_model = ChatterboxVoiceConversion.from_pretrained(device=model_device)
+            vc_model = ChatterboxVC.from_pretrained(device=model_device)
             VC_MODEL_LOADED = True
             logger.info(f"+++++++++++++++++++++++++++++++++++++++==VC модель загружена из кэша: {model_cache_path}")
             logger.info(f"Voice Conversion model loaded successfully on {model_device}.")
@@ -349,7 +349,7 @@ def load_vc_model() -> bool:
         logger.info(f"Loading Voice Conversion model on {model_device}...")
         
         # Загружаем модель VC
-        vc_model = ChatterboxVoiceConversion.from_pretrained(device=model_device)
+        vc_model = ChatterboxVC.from_pretrained(device=model_device)
         VC_MODEL_LOADED = True
         
         logger.info(f"Voice Conversion model loaded successfully on {model_device}.")
@@ -362,7 +362,7 @@ def load_vc_model() -> bool:
         return False
 
 
-def get_or_load_vc_model() -> Optional[ChatterboxVoiceConversion]:
+def get_or_load_vc_model() -> Optional[ChatterboxVC]:
     """
     Получает или загружает модель Voice Conversion.
     """
