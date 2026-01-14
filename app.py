@@ -1008,7 +1008,7 @@ def create_gradio_interface():
                     os.makedirs("output", exist_ok=True)
                     base = os.path.splitext(os.path.basename(input_audio_path))[0]
                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S_%f")[:-3]
-                    out_path = f"output/{base}_vc_{timestamp}.wav"
+                    out_path = f"outputs/{base}_vc_{timestamp}.wav"
                     sf.write(out_path, out_wav, sr)
                     return [out_path], out_path  # Files and preview
 
