@@ -258,7 +258,7 @@ def load_model() -> bool:
         try:
             # Пытаемся загрузить VC модель (но не прерываем загрузку если не получится)
             logger.info(f"Attempting to load Voice Conversion model on {model_device}...")
-            vc_model = ChatterboxVoiceConversion.from_pretrained(device=model_device)
+            vc_model = ChatterboxVC.from_pretrained(device=model_device)
             VC_MODEL_LOADED = True
             logger.info(f"Voice Conversion model loaded successfully on {model_device}.")
         except Exception as vc_e:
