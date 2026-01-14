@@ -3,7 +3,34 @@
 # Основано на server.py, script.js и index.html
 
 import os
-model_cache_root = "./models/hf_cache"  # или любой другой путь
+from config import (
+    config_manager,
+    get_host,
+    get_port,
+    get_log_file_path,
+    get_output_path,
+    get_reference_audio_path,
+    get_predefined_voices_path,
+    get_ui_title,
+    get_gen_default_temperature,
+    get_gen_default_exaggeration,
+    get_gen_default_cfg_weight,
+    get_gen_default_seed,
+    get_gen_default_speed_factor,
+    get_gen_default_language,
+    get_audio_sample_rate,
+    get_full_config_for_template,
+    get_audio_output_format,
+)
+model_cache_path = config_manager.get_path("paths.model_cache", "./model_cache", ensure_absolute=True)
+
+# Устанавливаем переменные окружения ПЕРЕД любыми импортами huggingface
+os.environ["HF_HOME"] = str(model_cache_path)
+os.environ["HF_HUB_CACHE"] = str(model_cache_path)
+os.environ["TRANSFORMERS_CACHE"] = str(model_cache_path)
+os.environ["TORCH_HOME"] = str(model_cache_path)
+os.environ["HUGGINGFACE_HUB_CACHE"] = str(model_cache_path)
+os.environ["XDG_CACHE_HOME"] = str(model_cache_path.parent)
 print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',os.path.abspath(model_cache_root))
 os.environ["HF_HOME"] = os.path.abspath(model_cache_root)
 from pathlib import Path
@@ -26,36 +53,10 @@ from datetime import datetime
 
 # --- ОРИГИНАЛЬНЫЕ ИМПОРТЫ ИЗ SERVER.PY ---
 # Импортируем config_manager ПЕРВЫМ ДЕЛОМ
-from config import (
-    config_manager,
-    get_host,
-    get_port,
-    get_log_file_path,
-    get_output_path,
-    get_reference_audio_path,
-    get_predefined_voices_path,
-    get_ui_title,
-    get_gen_default_temperature,
-    get_gen_default_exaggeration,
-    get_gen_default_cfg_weight,
-    get_gen_default_seed,
-    get_gen_default_speed_factor,
-    get_gen_default_language,
-    get_audio_sample_rate,
-    get_full_config_for_template,
-    get_audio_output_format,
-)
+
 
 # Получаем путь к кэшу из конфигурации
-model_cache_path = config_manager.get_path("paths.model_cache", "./model_cache", ensure_absolute=True)
 
-# Устанавливаем переменные окружения ПЕРЕД любыми импортами huggingface
-os.environ["HF_HOME"] = str(model_cache_path)
-os.environ["HF_HUB_CACHE"] = str(model_cache_path)
-os.environ["TRANSFORMERS_CACHE"] = str(model_cache_path)
-os.environ["TORCH_HOME"] = str(model_cache_path)
-os.environ["HUGGINGFACE_HUB_CACHE"] = str(model_cache_path)
-os.environ["XDG_CACHE_HOME"] = str(model_cache_path.parent)
 
 # --- ИМПОРТЫ ИЗ ОРИГИНАЛЬНЫХ ФАЙЛОВ ---
 import engine  # TTS Engine interface
