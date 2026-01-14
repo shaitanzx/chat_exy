@@ -953,7 +953,7 @@ def voice_conversion(input_audio_path, target_voice_audio_path, chunk_sec=60, ov
         else:
             result = np.concatenate([result, out_chunks[i]])
     return model_sr, result
-def get_play_component():
+def get_play_component(current_config):
                 with gr.Row():                
                     # Режим голоса (аналог Voice Mode)
                         with gr.Accordion("🗣 Voice Mode", open=True):
@@ -1160,7 +1160,7 @@ def create_gradio_interface():
                                 label="Chunk Size",
                                 visible=True
                             )
-                    voice_mode_radio, predefined_voice_select, reference_file_select = get_play_component()
+                    voice_mode_radio, predefined_voice_select, reference_file_select = get_play_component(current_config)
 
 #####################################                            
              
