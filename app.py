@@ -896,7 +896,7 @@ def voice_conversion(input_audio_path, target_voice_audio_path, chunk_sec=60, ov
 
 # --- СОЗДАНИЕ GRADIO ИНТЕРФЕЙСА ---
 def voice_conversion(input_audio_path, target_voice_audio_path, chunk_sec=60, overlap_sec=0.1, disable_watermark=True, pitch_shift=0):
-    vc_model = get_or_load_vc_model()
+    vc_model = engine.get_or_load_vc_model()
     model_sr = vc_model.sr
 
     wav, sr = sf.read(input_audio_path)
