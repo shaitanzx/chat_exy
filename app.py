@@ -1015,7 +1015,22 @@ def get_play_component():
                                     reference_audio_player,  # видимость
                                     reference_audio_player   # autoplay
                                     ]
-                                )     
+                                ) 
+                            predefined_play_btn.click(
+                                fn=lambda file: toggle_voice_audio(file, "predefined"),
+                                inputs=[predefined_voice_select],
+                                outputs=[
+                                    reference_audio_player,  # основной аудиоплеер
+                                    predefined_play_btn,     # текст кнопки
+                                    reference_audio_player,  # видимость
+                                    reference_audio_player   # autoplay
+                                    ]
+                                )
+                            reference_upload_btn.upload(
+                                fn=on_reference_upload,
+                                inputs=[reference_upload_btn],
+                                outputs=[reference_file_select]
+                                )    
                 return  voice_mode_radio, predefined_voice_select, reference_file_select   
 def create_gradio_interface():
     """Создание полного интерфейса Gradio на основе index.html"""
@@ -1328,16 +1343,7 @@ def create_gradio_interface():
 
 
         # --- ПРИВЯЗКА ОБРАБОТЧИКОВ СОБЫТИЙ ---
-        predefined_play_btn.click(
-            fn=lambda file: toggle_voice_audio(file, "predefined"),
-            inputs=[predefined_voice_select],
-            outputs=[
-                reference_audio_player,  # основной аудиоплеер
-                predefined_play_btn,     # текст кнопки
-                reference_audio_player,  # видимость
-                reference_audio_player   # autoplay
-            ]
-        )
+
         save_config_btn.click(
             fn=save_settings_endpoint,
             inputs=[config_tts_engine_device, config_tts_engine_reference_audio_path, config_tts_engine_predefined_voices_path, 
@@ -1347,11 +1353,7 @@ def create_gradio_interface():
         )
         
 
-        reference_upload_btn.upload(
-            fn=on_reference_upload,
-            inputs=[reference_upload_btn],
-            outputs=[reference_file_select]
-        )
+
         # Основная кнопка Generate
         generate_btn.click(lambda: (gr.update(interactive=False)),outputs=[generate_btn]) \
             .then(fn=on_generate_click,inputs=[
