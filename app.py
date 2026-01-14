@@ -953,6 +953,70 @@ def voice_conversion(input_audio_path, target_voice_audio_path, chunk_sec=60, ov
         else:
             result = np.concatenate([result, out_chunks[i]])
     return model_sr, result
+def get_play_component():
+                with gr.Row():                
+                    # Режим голоса (аналог Voice Mode)
+                        with gr.Accordion("🗣 Voice Mode", open=True):
+                            voice_mode_radio = gr.Radio(
+                                choices=["predefined", "clone"],
+                                value="predefined",
+                                label="Select Voice Mode"
+                            )
+                    
+                    # Предопределенные голоса
+                            with gr.Group(visible=True) as predefined_group:
+                                with gr.Row():
+                                    predefined_voice_select = gr.Dropdown(
+                                        choices=populatePredefinedVoices(),
+                                        value=current_config.get("ui_state", {}).get("last_predefined_voice", "none"),
+                                        label="Predefined Voices",
+                                        interactive=True
+                                    )
+                                with gr.Row():    
+                                    predefined_play_btn = gr.Button("▶️ Play/Stop")
+                    
+                    # Референсные файлы для клонирования
+                            with gr.Group(visible=False) as clone_group:
+                                with gr.Row():
+                                    reference_file_select = gr.Dropdown(
+                                        choices=populateReferenceFiles(),
+                                        value=current_config.get("ui_state", {}).get("last_reference_file", "none"),
+                                        label="Reference Audio Files",
+                                        interactive=True
+                                    )
+                                with gr.Row(): 
+                                    reference_play_btn = gr.Button("▶️ Play/Stop")
+                        # Кнопки для работы с референсными файлами ТОЛЬКО ЗДЕСЬ
+                                with gr.Row():
+                                    reference_upload_btn = gr.UploadButton("📁 Upload Reference Audio",
+                                        file_types=[".wav", ".mp3"],
+                                        file_count="single",
+                                        visible=True
+                                    )
+
+                            reference_audio_player = gr.Audio(
+                                    visible=False,
+                                    label="",
+                                    interactive=False,
+                                    show_label=False,
+                                    elem_id="reference-audio-player",
+                                    autoplay=False  # изначально выключено
+                                )  
+                            reference_audio_trigger = gr.Audio(
+                                    visible=False,
+                                    elem_id="reference-audio-trigger"
+                                )
+                            reference_play_btn.click(
+                                fn=lambda file: toggle_voice_audio(file, "clone"),
+                                inputs=[reference_file_select],
+                                outputs=[
+                                    reference_audio_player,  # основной аудиоплеер
+                                    reference_play_btn,      # текст кнопки
+                                    reference_audio_player,  # видимость
+                                    reference_audio_player   # autoplay
+                                    ]
+                                )     
+                return  voice_mode_radio, predefined_voice_select, reference_file_select   
 def create_gradio_interface():
     """Создание полного интерфейса Gradio на основе index.html"""
     
@@ -1076,59 +1140,11 @@ def create_gradio_interface():
                                 label="Chunk Size",
                                 visible=True
                             )
-                with gr.Row():                
-                    # Режим голоса (аналог Voice Mode)
-                        with gr.Accordion("🗣 Voice Mode", open=True):
-                            voice_mode_radio = gr.Radio(
-                                choices=["predefined", "clone"],
-                                value="predefined",
-                                label="Select Voice Mode"
-                            )
-                    
-                    # Предопределенные голоса
-                            with gr.Group(visible=True) as predefined_group:
-                                with gr.Row():
-                                    predefined_voice_select = gr.Dropdown(
-                                        choices=populatePredefinedVoices(),
-                                        value=current_config.get("ui_state", {}).get("last_predefined_voice", "none"),
-                                        label="Predefined Voices",
-                                        interactive=True
-                                    )
-                                with gr.Row():    
-                                    predefined_play_btn = gr.Button("▶️ Play/Stop")
-                    
-                    # Референсные файлы для клонирования
-                            with gr.Group(visible=False) as clone_group:
-                                with gr.Row():
-                                    reference_file_select = gr.Dropdown(
-                                        choices=populateReferenceFiles(),
-                                        value=current_config.get("ui_state", {}).get("last_reference_file", "none"),
-                                        label="Reference Audio Files",
-                                        interactive=True
-                                    )
-                                with gr.Row(): 
-                                    reference_play_btn = gr.Button("▶️ Play/Stop")
-                        # Кнопки для работы с референсными файлами ТОЛЬКО ЗДЕСЬ
-                                with gr.Row():
-                                    reference_upload_btn = gr.UploadButton("📁 Upload Reference Audio",
-                                        file_types=[".wav", ".mp3"],
-                                        file_count="single",
-                                        visible=True
-                                    )
+                    voice_mode_radio, predefined_voice_select, reference_file_select = get_play_component()
 
-                            reference_audio_player = gr.Audio(
-                                    visible=False,
-                                    label="",
-                                    interactive=False,
-                                    show_label=False,
-                                    elem_id="reference-audio-player",
-                                    autoplay=False  # изначально выключено
-                                )  
-                            reference_audio_trigger = gr.Audio(
-                                    visible=False,
-                                    elem_id="reference-audio-trigger"
-                                )      
-
+#####################################                            
+             
+#######################
 
 
 
@@ -1330,16 +1346,7 @@ def create_gradio_interface():
                 speed_factor_slider, language_select, config_audio_output_format,config_audio_output_sample_rate]
         )
         
-        reference_play_btn.click(
-            fn=lambda file: toggle_voice_audio(file, "clone"),
-            inputs=[reference_file_select],
-            outputs=[
-                reference_audio_player,  # основной аудиоплеер
-                reference_play_btn,      # текст кнопки
-                reference_audio_player,  # видимость
-                reference_audio_player   # autoplay
-            ]
-        )
+
         reference_upload_btn.upload(
             fn=on_reference_upload,
             inputs=[reference_upload_btn],
