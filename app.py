@@ -50,6 +50,7 @@ import librosa
 import unicodedata
 import re
 from datetime import datetime
+import soundfile as sf
 
 # --- ОРИГИНАЛЬНЫЕ ИМПОРТЫ ИЗ SERVER.PY ---
 # Импортируем config_manager ПЕРВЫМ ДЕЛОМ
