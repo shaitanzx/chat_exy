@@ -190,6 +190,58 @@ def load_model() -> bool:
         return True
 
     try:
+        # ↓↓↓ ПОЛУЧАЕМ ПУТЬ К КЭШУ НАПРЯМУЮ ИЗ CONFIG_MANAGER ↓↓↓
+        model_cache_path = config_manager.get_path("paths.model_cache", "./model_cache", ensure_absolute=True)
+        logger.info(f"📁 Путь к кэшу моделей: {model_cache_path}")
+        
+        # Проверяем существование и размер кэша
+        from pathlib import Path
+        cache_path = Path(model_cache_path)
+        if cache_path.exists():
+            # Подсчет общего размера кэша
+            total_size = 0
+            file_count = 0
+            for file_path in cache_path.rglob("*"):
+                if file_path.is_file():
+                    total_size += file_path.stat().st_size
+                    file_count += 1
+            
+            size_gb = total_size / (1024**3)
+            size_mb = total_size / (1024**2)
+            
+            logger.info(f"📦 Размер кэша: {size_gb:.2f} GB ({size_mb:.0f} MB)")
+            logger.info(f"📄 Файлов в кэше: {file_count}")
+            
+            # Показываем модели в кэше
+            model_dirs = [d for d in cache_path.iterdir() if d.is_dir() and d.name.startswith("models--")]
+            logger.info(f"📚 Найдено моделей в кэше: {len(model_dirs)}")
+            
+            for model_dir in model_dirs:
+                model_name = model_dir.name.replace("models--", "").replace("--", "/")
+                
+                # Размер конкретной модели
+                model_size = sum(f.stat().st_size for f in model_dir.rglob("*") if f.is_file())
+                model_size_mb = model_size / (1024**2)
+                
+                # Проверяем snapshots
+                snapshots_dir = model_dir / "snapshots"
+                if snapshots_dir.exists():
+                    snapshots = list(snapshots_dir.iterdir())
+                    if snapshots:
+                        snapshot = snapshots[0]  # берем первый snapshot
+                        snapshot_files = list(snapshot.rglob("*.*"))
+                        logger.info(f"  └─ {model_name}: {model_size_mb:.1f} MB, {len(snapshot_files)} файлов")
+                        # Показываем основные файлы модели
+                        for file_path in snapshot_files[:3]:  # первые 3 файла
+                            if file_path.is_file():
+                                file_mb = file_path.stat().st_size / (1024**2)
+                                logger.info(f"     • {file_path.name}: {file_mb:.1f} MB")
+                else:
+                    logger.info(f"  └─ {model_name}: {model_size_mb:.1f} MB (скачивается...)")
+        else:
+            logger.info("📭 Кэш не существует, будет создан при загрузке моделей")
+        # ↑↑↑ ПОЛУЧАЕМ ПУТЬ К КЭШУ НАПРЯМУЮ ИЗ CONFIG_MANAGER ↑↑↑
+
         # Determine the device
         device_setting = config_manager.get_string("tts_engine.device", "auto")
         if device_setting == "auto":
@@ -244,43 +296,132 @@ def load_model() -> bool:
                 resolved_device_str = "cpu"
             logger.info(f"Auto-detection resolved to: {resolved_device_str}")
         model_device = resolved_device_str
-        logger.info(f"Final device selection: {model_device}")
+        logger.info(f"🎯 Устройство для моделей: {model_device}")
 
-        # Load the multilingual engine immediately
-        
+        # Загружаем TTS модель
+        logger.info("⬇️  Загрузка TTS модели...")
         multilingual_model = PatchedChatterboxTTS.from_pretrained(device=model_device)
         chatterbox_model = multilingual_model
         MULTILINGUAL_MODEL_LOADED = True
         MODEL_LOADED = True
-        logger.info(f"+++++++++++++++++++++++++++++++++++++++TTS модель загружена из кэша: {model_cache_path}")
-        logger.info(f"PatchedChatterboxTTS model loaded successfully on {model_device}.")
-        logger.info("Multilingual model is now the default for ALL languages.")
+
+        logger.info(f"✅ TTS модель загружена на устройство: {model_device}")
+        logger.info("🌐 Мультиязычная модель теперь используется для ВСЕХ языков.")
         
         # ↓↓↓ ДОБАВЛЕНО: Загрузка модели Voice Conversion ↓↓↓
         try:
-            # Пытаемся загрузить VC модель (но не прерываем загрузку если не получится)
-            logger.info(f"Attempting to load Voice Conversion model on {model_device}...")
-            vc_model = ChatterboxVC.from_pretrained(device=model_device)
+            # Пытаемся загрузить VC модель
+            logger.info("⬇️  Загрузка Voice Conversion модели...")
+            vc_model = ChatterboxVoiceConversion.from_pretrained(device=model_device)
             VC_MODEL_LOADED = True
-            logger.info(f"+++++++++++++++++++++++++++++++++++++++==VC модель загружена из кэша: {model_cache_path}")
-            logger.info(f"Voice Conversion model loaded successfully on {model_device}.")
+            logger.info(f"✅ Voice Conversion модель загружена на устройство: {model_device}")
+            
+            # ↓↓↓ ВЫВОД ИНФОРМАЦИИ О ЗАГРУЖЕННЫХ МОДЕЛЯХ ↓↓↓
+            logger.info("=" * 60)
+            logger.info("📊 СТАТУС ЗАГРУЗКИ МОДЕЛЕЙ:")
+            logger.info(f"  • TTS модель: {'✅ ЗАГРУЖЕНА' if MODEL_LOADED else '❌ НЕ ЗАГРУЖЕНА'}")
+            logger.info(f"  • VC модель: {'✅ ЗАГРУЖЕНА' if VC_MODEL_LOADED else '❌ НЕ ЗАГРУЖЕНА'}")
+            logger.info(f"  • Устройство: {model_device}")
+            logger.info(f"  • Путь кэша: {model_cache_path}")
+            
+            # Память GPU
+            if model_device == "cuda" and torch.cuda.is_available():
+                gpu_memory = torch.cuda.get_device_properties(0)
+                total_memory = gpu_memory.total_memory / (1024**3)
+                allocated_memory = torch.cuda.memory_allocated() / (1024**3)
+                reserved_memory = torch.cuda.memory_reserved() / (1024**3)
+                
+                logger.info(f"  • GPU память: {allocated_memory:.1f}/{total_memory:.1f} GB использовано")
+                logger.info(f"  • GPU зарезервировано: {reserved_memory:.1f} GB")
+            
+            logger.info("=" * 60)
+            # ↑↑↑ ВЫВОД ИНФОРМАЦИИ О ЗАГРУЖЕННЫХ МОДЕЛЯХ ↑↑↑
+            
         except Exception as vc_e:
-            logger.warning(f"Failed to load Voice Conversion model: {vc_e}")
-            logger.warning("Voice Conversion tab will not be available.")
-            # Не сбрасываем флаг загрузки основной модели даже если VC не загрузилась
+            logger.warning(f"⚠️ Не удалось загрузить Voice Conversion модель: {vc_e}")
+            logger.warning("Вкладка Voice Conversion будет недоступна.")
             vc_model = None
             VC_MODEL_LOADED = False
+            
+            # Выводим информацию даже если VC не загрузилась
+            logger.info("=" * 60)
+            logger.info("📊 СТАТУС ЗАГРУЗКИ МОДЕЛЕЙ:")
+            logger.info(f"  • TTS модель: {'✅ ЗАГРУЖЕНА' if MODEL_LOADED else '❌ НЕ ЗАГРУЖЕНА'}")
+            logger.info(f"  • VC модель: ❌ НЕ ЗАГРУЖЕНА (ошибка: {str(vc_e)[:100]}...)")
+            logger.info(f"  • Устройство: {model_device}")
+            logger.info(f"  • Путь кэша: {model_cache_path}")
+            logger.info("=" * 60)
         # ↑↑↑ ДОБАВЛЕНО: Загрузка модели Voice Conversion ↑↑↑
 
         return True
 
     except Exception as e:
-        logger.error(f"Error loading multilingual model: {e}", exc_info=True)
+        logger.error(f"❌ Ошибка загрузки мультиязычной модели: {e}", exc_info=True)
         multilingual_model = None
         chatterbox_model = None
         MULTILINGUAL_MODEL_LOADED = False
         MODEL_LOADED = False
         return False
+
+
+def get_model_info() -> dict:
+    """
+    Возвращает информацию о загруженных моделях.
+    Может быть вызвана из server_gradio.py для отображения в интерфейсе.
+    """
+    try:
+        model_cache_path = config_manager.get_path("paths.model_cache", "./model_cache", ensure_absolute=True)
+        cache_path = Path(model_cache_path)
+        
+        info = {
+            "status": {
+                "tts_loaded": MODEL_LOADED,
+                "vc_loaded": VC_MODEL_LOADED if 'VC_MODEL_LOADED' in globals() else False,
+                "device": model_device,
+                "cache_path": str(model_cache_path)
+            },
+            "cache_info": {
+                "exists": cache_path.exists(),
+                "total_size_mb": 0,
+                "model_count": 0,
+                "models": []
+            }
+        }
+        
+        if cache_path.exists():
+            # Размер кэша
+            total_size = sum(f.stat().st_size for f in cache_path.rglob("*") if f.is_file())
+            info["cache_info"]["total_size_mb"] = total_size / (1024**2)
+            
+            # Модели в кэше
+            model_dirs = [d for d in cache_path.iterdir() if d.is_dir() and d.name.startswith("models--")]
+            info["cache_info"]["model_count"] = len(model_dirs)
+            
+            for model_dir in model_dirs:
+                model_name = model_dir.name.replace("models--", "").replace("--", "/")
+                model_size = sum(f.stat().st_size for f in model_dir.rglob("*") if f.is_file())
+                
+                model_info = {
+                    "name": model_name,
+                    "size_mb": model_size / (1024**2),
+                    "path": str(model_dir)
+                }
+                
+                # Проверяем snapshots
+                snapshots_dir = model_dir / "snapshots"
+                if snapshots_dir.exists():
+                    snapshots = list(snapshots_dir.iterdir())
+                    if snapshots:
+                        snapshot = snapshots[0]
+                        model_info["snapshot"] = str(snapshot)
+                        model_info["files"] = [f.name for f in snapshot.iterdir() if f.is_file()][:5]
+                
+                info["cache_info"]["models"].append(model_info)
+        
+        return info
+        
+    except Exception as e:
+        return {"error": str(e)}
 
 
 def load_multilingual_model() -> bool:
