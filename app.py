@@ -955,7 +955,7 @@ def voice_conversion(input_audio_path, target_voice_audio_path, chunk_sec=60, ov
     return model_sr, result
 
 
-    voice_mode_radio,predefined_voice_select reference_file_select 
+
 def voice_change(current_config):
                     with gr.Row():                
                     # Режим голоса (аналог Voice Mode)
