@@ -104,9 +104,7 @@ class ChatterboxVC:
             )
             wav = wav.squeeze(0).detach().cpu().numpy()
             if apply_watermark:
-                print('0000000000000000000000000000000000000000000000000000000000000  enable')
                 watermarked_wav = self.watermarker.apply_watermark(wav, sample_rate=self.sr)
             else:
-                print('0000000000000000000000000000000000000000000000000000000000000  diskable')
                 watermarked_wav = wav
         return torch.from_numpy(watermarked_wav).unsqueeze(0)
