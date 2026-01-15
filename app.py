@@ -1126,7 +1126,7 @@ def create_gradio_interface():
                     fn=_vc_wrapper,
                     inputs=[vc_input_audio, disable_watermark_checkbox, vc_pitch_shift,voice_mode_radio_vc,predefined_voice_select_vc,reference_file_select_vc],
                     outputs=[vc_output_files, vc_output_audio]) \
-                    (lambda: (gr.update(interactive=True),gr.update(visible=True)),outputs=[vc_convert_btn,vc_output_audio])
+                    .then (lambda: (gr.update(interactive=True),gr.update(visible=True)),outputs=[vc_convert_btn,vc_output_audio])
 
             with gr.Tab("🎵 MTL Generation"):
         
