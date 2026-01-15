@@ -831,6 +831,7 @@ def reset_playback_on_mode_change(voice_mode: str) -> Tuple[str, str, Dict]:
     global reference_playing_state
     reference_playing_state = {"is_playing": False, "current_key": None}
     return "▶️ Play/Stop", "▶️ Play/Stop", gr.update(visible=False)
+"""
 def voice_conversion(input_audio_path, target_voice_audio_path, chunk_sec=60, overlap_sec=0.1, disable_watermark=True, pitch_shift=0):
     vc_model = get_or_load_vc_model()
     model_sr = vc_model.sr
@@ -887,7 +888,7 @@ def voice_conversion(input_audio_path, target_voice_audio_path, chunk_sec=60, ov
         else:
             result = np.concatenate([result, out_chunks[i]])
     return model_sr, result
-
+"""
 #def on_reference_selection_change(selected_file: str) -> Tuple[str, Dict, Dict]:
 #    """
 #    При изменении выбора файла в dropdown останавливает воспроизведение.
