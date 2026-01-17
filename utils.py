@@ -40,22 +40,20 @@ except ImportError:
         "Librosa library not found. Advanced audio resampling features (e.g., for Opus encoding) "
         "and pitch-preserving speed adjustment will be limited. Speed adjustment will fall back to basic method if enabled."
     )
-import parselmouth
-print(f"00000000000000000000000000000000000000000000000000000000Parselmouth version: {parselmouth.__version__}")
-print(dir(parselmouth.Pitch))  
-# Optional import for Parselmouth (for unvoiced segment detection)
-#try:
-#    import parselmouth
 
-#    PARSELMOUTH_AVAILABLE = True
-#    logger.info(
-#        "Parselmouth library found and will be used for unvoiced segment removal if enabled."
-#    )
-#except ImportError:
-#    PARSELMOUTH_AVAILABLE = False
-#    logger.warning(
-#        "Parselmouth library not found. Unvoiced segment removal feature will be disabled."
-#    )
+# Optional import for Parselmouth (for unvoiced segment detection)
+try:
+    import parselmouth
+
+    PARSELMOUTH_AVAILABLE = True
+    logger.info(
+        "Parselmouth library found and will be used for unvoiced segment removal if enabled."
+    )
+except ImportError:
+    PARSELMOUTH_AVAILABLE = False
+    logger.warning(
+        "Parselmouth library not found. Unvoiced segment removal feature will be disabled."
+    )
 
 
 # --- Filename Sanitization ---
@@ -843,9 +841,9 @@ def remove_long_unvoiced_segments(
     Returns:
         NumPy audio array with long unvoiced segments removed. Original if Parselmouth not available or on error.
     """
-    #if not PARSELMOUTH_AVAILABLE:
-    #    logger.warning("Parselmouth not available, skipping unvoiced segment removal.")
-    #    return audio_array
+    if not PARSELMOUTH_AVAILABLE:
+        logger.warning("Parselmouth not available, skipping unvoiced segment removal.")
+        return audio_array
     if audio_array is None or audio_array.size == 0:
         return audio_array
 
