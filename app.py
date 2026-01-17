@@ -1220,6 +1220,12 @@ def create_gradio_interface():
                                         value=get_gen_default_seed(),
                                         label="Generation Seed (0 or -1 for random)"
                                         )
+                                    config_audio_output_sample_rate = gr.Number(
+                                        label="Audio Sample Rate",
+                                        value=current_config.get("audio_output", {}).get("sample_rate", 24000),
+                                        precision=0,
+                                        interactive=True
+                                        )
                                 with gr.Column():
                                     exaggeration_slider = gr.Slider(
                                         minimum=0.0,
@@ -1239,6 +1245,12 @@ def create_gradio_interface():
                                         choices=language_options,
                                         value=current_config.get("generation_defaults", {}).get("language", "English (en)"),
                                         label="Language",
+                                        interactive=True
+                                        )
+                                    config_audio_output_format = gr.Dropdown(
+                                        choices=["wav", "mp3", "opus"],
+                                        value=current_config.get("audio_output", {}).get("format", "mp3"),
+                                        label="Audio Output Format",
                                         interactive=True
                                         )
 
@@ -1342,20 +1354,10 @@ def create_gradio_interface():
                             )
 
 
-                        config_audio_output_format = gr.Dropdown(
-                                    choices=["wav", "mp3", "opus"],
-                                    value=current_config.get("audio_output", {}).get("format", "mp3"),
-                                    label="Audio Output Format",
-                                    interactive=True
-                                    )
+                        
 
 
-                        config_audio_output_sample_rate = gr.Number(
-                            label="Audio Sample Rate",
-                            value=current_config.get("audio_output", {}).get("sample_rate", 24000),
-                            precision=0,
-                            interactive=True
-                            )
+                        
             
             # Кнопки управления конфигурацией
                 with gr.Row():
