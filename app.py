@@ -1291,7 +1291,7 @@ def create_gradio_interface():
                     - Experiment with **Temperature** and other generation parameters to fine-tune output.
                     """)
 
-            with gr.Tab("⚙️ Server Configuration"):
+        with gr.Tab("⚙️ Server Configuration"):
         # Секция конфигурации сервера (аналог Server Configuration из index.html)
             #with gr.Accordion("⚙️ Server Configuration", open=False):
                 gr.Markdown("""
