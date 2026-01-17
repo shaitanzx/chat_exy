@@ -446,7 +446,7 @@ def custom_tts_endpoint(
             if len(all_audio_segments_np) > 1
             else all_audio_segments_np[0]
         )
-        
+#############################################################        
         # Применение аудио-обработки
         if config_manager.get_bool("audio_processing.enable_silence_trimming", False):
             final_audio_np = utils.trim_lead_trail_silence(
