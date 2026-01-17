@@ -29,7 +29,7 @@ generation_defaults:
   language: Russian (ru)
 audio_output:
   format: wav
-  sample_rate: 48000
+  sample_rate: 24000
   max_reference_duration_sec: 600
 ui_state:
   last_text: "\u041A\u043E\u0433\u0434\u0430\u0301-\u0442\u043E \u0433\u0435\u0440\
