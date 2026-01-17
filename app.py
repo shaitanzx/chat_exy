@@ -449,6 +449,7 @@ def custom_tts_endpoint(
         )
 #############################################################        
         # Применение аудио-обработки
+        print ('zzzzzzzzzzzzzzzzzzzz',silence_trimming)
         if silence_trimming:
             final_audio_np = utils.trim_lead_trail_silence(
                 final_audio_np, engine_output_sample_rate
