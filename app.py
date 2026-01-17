@@ -242,6 +242,7 @@ def get_ui_initial_data() -> Dict[str, Any]:
         logger.error(f"Error preparing initial UI data: {e}", exc_info=True)
         return {"error": "Failed to load initial data"}
 
+
 def save_settings_endpoint(config_tts_engine_device, reference_audio_path, predefined_voices_path, default_voice_id, default_voice_clone,
                 config_paths_model_cache,config_paths_output,temperature_slider, exaggeration_slider,cfg_weight_slider, seed_input,
                 speed_factor_slider, language, config_audio_output_format,config_audio_output_sample_rate):
@@ -447,9 +448,9 @@ def custom_tts_endpoint(
                 return None, f"Predefined voice file '{predefined_voice_id}' not found."
             audio_prompt_path = potential_path
             
-        elif voice_mode == "clone":
+        elif voice_mode == "custom":
             if not reference_audio_filename:
-                return None, "Missing 'reference_audio_filename' for 'clone' voice mode."
+                return None, "Missing 'reference_audio_filename' for 'custom' voice mode."
             ref_dir = get_reference_audio_path(ensure_absolute=True)
             potential_path = ref_dir / reference_audio_filename
             if not potential_path.is_file():
@@ -608,14 +609,14 @@ def getTTSFormData(
         "chunk_size": chunk_size,
         "output_format": output_format,
         "predefined_voice_id": predefined_voice if voice_mode == "predefined" and predefined_voice != "none" else None,
-        "reference_audio_filename": reference_file if voice_mode == "clone" and reference_file != "none" else None
+        "reference_audio_filename": reference_file if voice_mode == "custom" and reference_file != "none" else None
     }
 
 def toggleVoiceOptionsDisplay(voice_mode: str) -> Tuple[Dict, Dict]:
     """Аналог toggleVoiceOptionsDisplay из script.js"""
     return (
         gr.update(visible=(voice_mode == "predefined")),
-        gr.update(visible=(voice_mode == "clone"))
+        gr.update(visible=(voice_mode == "custom"))
     )
 
 def toggleChunkControlsVisibility(split_enabled: bool) -> Tuple[Dict, Dict]:
@@ -700,7 +701,7 @@ def on_generate_click(
     if voice_mode == "predefined" and predefined_voice == "none":
         return None
     
-    if voice_mode == "clone" and reference_file == "none":
+    if voice_mode == "custom" and reference_file == "none":
         return None
     
     # Проверка предупреждений (аналог строк 562-570 script.js)
@@ -965,7 +966,7 @@ def voice_change(current_config):
                     # Режим голоса (аналог Voice Mode)
                         with gr.Accordion("🗣 Target Voice", open=True):
                             voice_mode_radio = gr.Radio(
-                                choices=["predefined", "clone"],
+                                choices=["predefined", "custom"],
                                 value="predefined",
                                 label="Select Voice Mode"
                             )
@@ -988,14 +989,14 @@ def voice_change(current_config):
                                     reference_file_select = gr.Dropdown(
                                         choices=populateReferenceFiles(),
                                         value=current_config.get("ui_state", {}).get("last_reference_file", "none"),
-                                        label="Reference Audio Files",
+                                        label="Custom Audio Files",
                                         interactive=True
                                     )
                                 with gr.Row(): 
                                     reference_play_btn = gr.Button("▶️ Play/Stop")
                         # Кнопки для работы с референсными файлами ТОЛЬКО ЗДЕСЬ
                                 with gr.Row():
-                                    reference_upload_btn = gr.UploadButton("📁 Upload Reference Audio",
+                                    reference_upload_btn = gr.UploadButton("📁 Upload Custom Audio",
                                         file_types=[".wav", ".mp3"],
                                         file_count="multiple",
                                         visible=True
@@ -1024,7 +1025,7 @@ def voice_change(current_config):
                                             ]
                                     )
                             reference_play_btn.click(
-                                    fn=lambda file: toggle_voice_audio(file, "clone"),
+                                    fn=lambda file: toggle_voice_audio(file, "custom"),
                                     inputs=[reference_file_select],
                                     outputs=[
                                         reference_audio_player,  # основной аудиоплеер
@@ -1099,7 +1100,7 @@ def create_gradio_interface():
                         potential_path = voices_dir / predefined_voice_id
                         target_voice_audio_path = potential_path
             
-                    elif voice_mode == "clone":
+                    elif voice_mode == "custom":
                         ref_dir = get_reference_audio_path(ensure_absolute=True)
                         potential_path = ref_dir / reference_audio_filename
                         max_dur = config_manager.get_int("audio_output.max_reference_duration_sec", 600)
