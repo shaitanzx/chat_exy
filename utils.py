@@ -820,7 +820,7 @@ def fix_internal_silence(
         return audio_array
 
 
-def remove_long_noise_segments_advanced(
+def remove_long_unvoiced_segments(
     audio_array: np.ndarray,
     sample_rate: int,
     min_noise_duration_ms: int = 300,
