@@ -1107,7 +1107,7 @@ def create_gradio_interface():
 
 
 #####################################                            
-            voice_mode_radio,predefined_voice_select,reference_file_select = voice_change(current_config)
+            voice_mode_radio,predefined_voice_select,reference_file_select,_ = voice_change(current_config)
 ##############################################################
 
 
