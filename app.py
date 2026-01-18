@@ -700,35 +700,35 @@ def on_generate_click(
 
 
 
-            output_format_str = output_format if output_format else get_audio_output_format()
-            if output_sample_rate is not None:
-                final_output_sample_rate = output_sample_rate
-            else:
-                final_output_sample_rate = get_audio_sample_rate()
+        output_format_str = output_format if output_format else get_audio_output_format()
+        if output_sample_rate is not None:
+            final_output_sample_rate = output_sample_rate
+        else:
+            final_output_sample_rate = get_audio_sample_rate()
     
-            encoded_audio_bytes = utils.encode_audio(
-                audio_array=final_audio_np,
-                sample_rate=engine_output_sample_rate,
-                output_format=output_format_str,
-                target_sample_rate=final_output_sample_rate,  # ← используем определенный sample rate
-                )
+        encoded_audio_bytes = utils.encode_audio(
+            audio_array=final_audio_np,
+            sample_rate=engine_output_sample_rate,
+            output_format=output_format_str,
+            target_sample_rate=final_output_sample_rate,  # ← используем определенный sample rate
+            )
         
-            if encoded_audio_bytes is None:
-                return None, None, gr.update (visible=True)
+        if encoded_audio_bytes is None:
+            return None, None, gr.update (visible=True)
         
         # Сохранение файла (аналог строк 817-840 server.py)
-            outputs_dir = get_output_path(ensure_absolute=True)
-            outputs_dir.mkdir(parents=True, exist_ok=True)
+        outputs_dir = get_output_path(ensure_absolute=True)
+        outputs_dir.mkdir(parents=True, exist_ok=True)
+    
+        timestamp_str = time.strftime("%Y%m%d_%H%M%S")
+        suggested_filename_base = audio_name or f"tts_output_post_{timestamp_str}"
+        file_name = utils.sanitize_filename(f"{suggested_filename_base}_post.{output_format_str}")
+        file_path = outputs_dir / file_name
         
-            timestamp_str = time.strftime("%Y%m%d_%H%M%S")
-            suggested_filename_base = audio_name or f"tts_output_post_{timestamp_str}"
-            file_name = utils.sanitize_filename(f"{suggested_filename_base}_post.{output_format_str}")
-            file_path = outputs_dir / file_name
+        with open(file_path, "wb") as f:
+            f.write(encoded_audio_bytes)
         
-            with open(file_path, "wb") as f:
-                f.write(encoded_audio_bytes)
-        
-            generation_time = time.time() - start_time
+        generation_time = time.time() - start_time
     else:
         file_path = audio_file
 
