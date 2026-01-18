@@ -724,9 +724,9 @@ def on_generate_click(
         output_format=output_format,
         output_sample_rate=config_audio_output_sample_rate,
         audio_name=audio_name,
-        silence_trimming=silence_trimming,
-        internal_silence_fix=internal_silence_fix,
-        unvoiced_removal=unvoiced_removal
+        #silence_trimming=silence_trimming,
+        #internal_silence_fix=internal_silence_fix,
+        #unvoiced_removal=unvoiced_removal
     )
     gr.Info(message)
     if audio_file !=None:
