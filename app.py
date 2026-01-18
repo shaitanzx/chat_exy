@@ -17,21 +17,9 @@ from config import (
     get_audio_sample_rate,
     get_full_config_for_template,
     get_audio_output_format,
-    get_ruaccent_cache_path,
 )
 model_cache_path = config_manager.get_path("paths.model_cache", "./model_cache", ensure_absolute=True)
-ruaccent_cache_path_str = config_manager.get_string("paths.ruaccent_cache", "./ruaccent_cache")
-from pathlib import Path
-ruaccent_cache_path = Path(ruaccent_cache_path_str).resolve()
 
-# Создаем папку если не существует
-ruaccent_cache_path.mkdir(parents=True, exist_ok=True)
-
-# Устанавливаем переменные окружения
-os.environ["RUACCENT_CACHE_DIR"] = str(ruaccent_cache_path)
-os.environ["RUACCENT_MODEL_DIR"] = str(ruaccent_cache_path / "model")
-os.environ["RUACCENT_OM1N_DIR"] = str(ruaccent_cache_path / "Om1n")
-os.environ["RUACCENT_RULES_DIR"] = str(ruaccent_cache_path / "rules")
 # Устанавливаем переменные окружения ПЕРЕД любыми импортами huggingface
 # os.environ["HF_HOME"] = str(model_cache_path)
 # os.environ["HF_HUB_CACHE"] = str(model_cache_path)
@@ -40,7 +28,7 @@ os.environ["RUACCENT_RULES_DIR"] = str(ruaccent_cache_path / "rules")
 # os.environ["HUGGINGFACE_HUB_CACHE"] = str(model_cache_path)
 # os.environ["XDG_CACHE_HOME"] = str(model_cache_path.parent)
 #print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',os.path.abspath(model_cache_path))
-
+from pathlib import Path
 import gradio as gr
 import torch
 import numpy as np
@@ -81,44 +69,6 @@ logging.basicConfig(
     ],
 )
 logger = logging.getLogger(__name__)
-# Функция инициализации
-ruaccent_available = False
-def initialize_ruaccent():
-    """
-    Инициализирует RUAccent с учетом настроенных путей.
-    """
-    global ruaccent_available
-    
-    if not ruaccent_available:
-        print("⚠️  RuAccent models not available during initialization")
-        return None
-    
-    try:
-        # Просто создаем и загружаем - переменные окружения уже установлены
-        accent_model = RUAccent()
-        
-        # В новых версиях ruaccent просто load() достаточно
-        # Он автоматически ищет модели в ~/.ruaccent или по переменным окружения
-        accent_model.load()
-        
-        logger.info(f"✅ RUAccent initialized successfully")
-        return accent_model
-        
-    except Exception as e:
-        logger.error(f"❌ Failed to initialize RUAccent: {e}")
-        
-        # Пробуем без параметров
-        try:
-            accent_model = RUAccent()
-            accent_model.load()
-            logger.info("✅ RUAccent initialized (without parameters)")
-            return accent_model
-        except Exception as e2:
-            logger.error(f"❌ Even simple load failed: {e2}")
-        
-        return None
-
-# Используем
 
 # --- Global Variables ---
 current_config = {}
@@ -165,7 +115,13 @@ def extract_language_code(display_text: str) -> str:
 
     return DISPLAY_TO_CODE.get(lang_name, display_text)
 
-accent_model = initialize_ruaccent()
+# --- Accentuation Support (из server.py) ---
+try:
+    accent_model = RUAccent()
+    accent_model.load()
+except Exception as e:
+    logger.error(f"Failed to initialize RUAccent: {e}")
+    accent_model = None
 
 def convert_plus_to_accent(text: str) -> str:
     """Convert ruaccent '+vowel' markers to vowel with combining acute"""
