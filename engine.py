@@ -179,6 +179,7 @@ def _test_mps_functionality() -> bool:
 def load_model() -> bool:
     """
     Loads the multilingual TTS model by default from local cache.
+    Automatically downloads models if missing.
     """
     global chatterbox_model, MODEL_LOADED, model_device, multilingual_model, MULTILINGUAL_MODEL_LOADED
     global vc_model, VC_MODEL_LOADED
@@ -188,7 +189,7 @@ def load_model() -> bool:
         return True
 
     try:
-        # Determine the device
+        # === СНАЧАЛА ОПРЕДЕЛЯЕМ УСТРОЙСТВО ===
         device_setting = config_manager.get_string("tts_engine.device", "auto")
         if device_setting == "auto":
             if _test_cuda_functionality():
@@ -243,17 +244,24 @@ def load_model() -> bool:
         model_device = resolved_device_str
         logger.info(f"Final device selection: {model_device}")
 
-        # Get model cache path from config
+        # === ТЕПЕРЬ ПРОВЕРЯЕМ И СКАЧИВАЕМ МОДЕЛИ ===
         model_cache_path_str = config_manager.get_string("paths.model_cache", "./model_cache")
         model_cache_path = Path(model_cache_path_str).resolve()
         
-        # Check if model files exist locally
+        # Создаем папку если не существует
+        model_cache_path.mkdir(parents=True, exist_ok=True)
+        
+        # ОБНОВЛЕННЫЙ СПИСОК ФАЙЛОВ - используем тот же что в download_model.py
         required_files = [
-            "ve.pt",
-            "s3gen.pt", 
-            "t3_mtl23ls_v2.safetensors",
+            "ve.pt",  # Voice Encoder model
+            "t3_cfg.pt",  # T3 model (Transformer Text-to-Token)
+            "s3gen.pt",  # S3Gen model (Token-to-Waveform)
+            "tokenizer.json",  # Text tokenizer configuration
+            "conds.pt",  # Default conditioning data (e.g., for default voice)
+            "Cangjie5_TC.json",
+            "s3gen.safetensors",
             "grapheme_mtl_merged_expanded_v1.json",
-            "conds.pt"
+            "t3_mtl23ls_v2.safetensors"
         ]
         
         missing_files = []
@@ -263,13 +271,47 @@ def load_model() -> bool:
                 missing_files.append(file)
         
         if missing_files:
-            logger.error(f"Missing model files in cache: {missing_files}")
-            logger.error("Please run download_model.py first to download the models.")
-            return False
+            logger.warning(f"Missing {len(missing_files)} model files: {missing_files}")
+            logger.info("🔄 Starting automatic download of missing models...")
+            
+            try:
+                # Импортируем модуль download_model
+                import sys
+                import importlib.util
+                
+                # Путь к скрипту download_model.py (предполагаем что он в той же директории)
+                download_script_path = Path(__file__).parent / "download_model.py"
+                
+                if download_script_path.exists():
+                    # Динамически импортируем модуль
+                    spec = importlib.util.spec_from_file_location("download_model", download_script_path)
+                    download_module = importlib.util.module_from_spec(spec)
+                    
+                    # Запускаем модуль
+                    spec.loader.exec_module(download_module)
+                    
+                    # Вызываем функцию загрузки
+                    success = download_module.download_engine_files()
+                    
+                    if success:
+                        logger.info("✅ All models downloaded successfully!")
+                    else:
+                        logger.error("❌ Failed to download models. Please check internet connection and try again.")
+                        return False
+                else:
+                    logger.error(f"❌ Download script not found at: {download_script_path}")
+                    logger.error("Please create download_model.py or download models manually.")
+                    return False
+                    
+            except Exception as e:
+                logger.error(f"❌ Error during automatic model download: {e}", exc_info=True)
+                logger.error("Please run download_model.py manually or check your internet connection.")
+                return False
         
-        logger.info(f"Loading model from local cache: {model_cache_path}")
+        # === ЗАГРУЖАЕМ МОДЕЛИ ИЗ ЛОКАЛЬНОГО КЭША ===
+        logger.info(f"📁 Loading model from local cache: {model_cache_path}")
         
-        # Load the multilingual model from local cache
+        # Загружаем основную TTS модель
         multilingual_model = PatchedChatterboxTTS.from_local(
             ckpt_dir=model_cache_path, 
             device=model_device
@@ -279,41 +321,37 @@ def load_model() -> bool:
         MULTILINGUAL_MODEL_LOADED = True
         MODEL_LOADED = True
 
-        logger.info(f"PatchedChatterboxTTS model loaded successfully from local cache on {model_device}.")
+        logger.info(f"✅ PatchedChatterboxTTS model loaded successfully from local cache on {model_device}.")
         logger.info("Multilingual model is now the default for ALL languages.")
         
-        # ↓↓↓ Load Voice Conversion model ↓↓↓
+        # === ПРОБУЕМ ЗАГРУЗИТЬ VC МОДЕЛЬ ===
         try:
-            logger.info(f"Attempting to load Voice Conversion model from local cache on {model_device}...")
+            logger.info(f"Attempting to load Voice Conversion model from local cache...")
             
-            # Check if VC model files exist
-            vc_required_files = [
-                "ve.pt",  # Voice encoder is shared
-                # Add other VC-specific files if needed
-            ]
+            # Проверяем необходимые для VC файлы
+            vc_required_files = ["ve.pt"]  # Voice encoder is shared
             
-            vc_missing_files = []
+            vc_missing = []
             for file in vc_required_files:
-                file_path = model_cache_path / file
-                if not file_path.exists():
-                    vc_missing_files.append(file)
+                if not (model_cache_path / file).exists():
+                    vc_missing.append(file)
             
-            if vc_missing_files:
-                logger.warning(f"Missing VC model files: {vc_missing_files}")
+            if vc_missing:
+                logger.warning(f"Missing VC model files: {vc_missing}")
                 logger.warning("Voice Conversion will not be available.")
                 vc_model = None
                 VC_MODEL_LOADED = False
             else:
-                # Load VC model from local cache
+                # Загружаем VC модель
                 vc_model = ChatterboxVC.from_local(
                     ckpt_dir=model_cache_path,
                     device=model_device
                 )
                 VC_MODEL_LOADED = True
-                logger.info(f"Voice Conversion model loaded successfully from local cache on {model_device}.")
+                logger.info(f"✅ Voice Conversion model loaded successfully from local cache on {model_device}.")
                 
         except Exception as vc_e:
-            logger.warning(f"Failed to load Voice Conversion model: {vc_e}")
+            logger.warning(f"⚠️ Failed to load Voice Conversion model: {vc_e}")
             logger.warning("Voice Conversion tab will not be available.")
             vc_model = None
             VC_MODEL_LOADED = False
@@ -321,7 +359,7 @@ def load_model() -> bool:
         return True
 
     except Exception as e:
-        logger.error(f"Error loading multilingual model: {e}", exc_info=True)
+        logger.error(f"❌ Error loading model: {e}", exc_info=True)
         multilingual_model = None
         chatterbox_model = None
         MULTILINGUAL_MODEL_LOADED = False
