@@ -453,7 +453,7 @@ def custom_tts_endpoint(
 #############################################################        
         # Применение аудио-обработки
         
-"""        
+        
         # Кодирование аудио (аналог строк 802-815 server.py)
         output_format_str = output_format if output_format else get_audio_output_format()
         if output_sample_rate is not None:
@@ -486,7 +486,7 @@ def custom_tts_endpoint(
         generation_time = time.time() - start_time
         
         return str(file_path), f"✅ Audio generated successfully in {generation_time:.2f}s"
-"""        
+       
     except Exception as e:
         logger.error(f"Error in TTS generation: {e}", exc_info=True)
         return None, f"❌ Error: {str(e)}"
