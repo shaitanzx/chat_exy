@@ -1184,7 +1184,7 @@ def create_gradio_interface():
                                         precision=0,
                                         interactive=True
                                         )
-                                    temp_slider = gr.Slider(label="Speed Factor",visible=False)
+                                    
                 with gr.Row():                    
                         with gr.Accordion("⚙️ Postprocessing Parameters", open=True):
                             with gr.Row():

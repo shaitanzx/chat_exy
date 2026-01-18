@@ -51,7 +51,7 @@ ui_state:
 ui:
   title: Chatterbox TTS Server
   show_language_select: true
-  max_predefined_voices_in_dropdown: 50
+  max_predefined_voices_in_dropdown: 1000
 debug:
   save_intermediate_audio: false
 audio_processing:
