@@ -83,20 +83,38 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 # Функция инициализации
 def initialize_ruaccent():
+    """
+    Инициализирует RUAccent с учетом настроенных путей.
+    """
+    global ruaccent_available
+    
+    if not ruaccent_available:
+        print("⚠️  RuAccent models not available during initialization")
+        return None
+    
     try:
+        # Просто создаем и загружаем - переменные окружения уже установлены
         accent_model = RUAccent()
         
-        # Используем пути из переменных окружения
-        accent_model.load(
-            omograph_model_dir=str(ruaccent_cache_path / "Om1n"),
-            accent_model_dir=str(ruaccent_cache_path / "model"),
-            rules_dir=str(ruaccent_cache_path / "rules")
-        )
+        # В новых версиях ruaccent просто load() достаточно
+        # Он автоматически ищет модели в ~/.ruaccent или по переменным окружения
+        accent_model.load()
         
-        logger.info(f"✅ RUAccent initialized from {ruaccent_cache_path}")
+        logger.info(f"✅ RUAccent initialized successfully")
         return accent_model
+        
     except Exception as e:
         logger.error(f"❌ Failed to initialize RUAccent: {e}")
+        
+        # Пробуем без параметров
+        try:
+            accent_model = RUAccent()
+            accent_model.load()
+            logger.info("✅ RUAccent initialized (without parameters)")
+            return accent_model
+        except Exception as e2:
+            logger.error(f"❌ Even simple load failed: {e2}")
+        
         return None
 
 # Используем
