@@ -98,7 +98,7 @@ def initialize_ruaccent():
         return None
 
 # Используем
-accent_model = initialize_ruaccent()
+
 # --- Global Variables ---
 current_config = {}
 currentUiState = {}
@@ -144,13 +144,7 @@ def extract_language_code(display_text: str) -> str:
 
     return DISPLAY_TO_CODE.get(lang_name, display_text)
 
-# --- Accentuation Support (из server.py) ---
-try:
-    accent_model = RUAccent()
-    accent_model.load()
-except Exception as e:
-    logger.error(f"Failed to initialize RUAccent: {e}")
-    accent_model = None
+accent_model = initialize_ruaccent()
 
 def convert_plus_to_accent(text: str) -> str:
     """Convert ruaccent '+vowel' markers to vowel with combining acute"""
