@@ -363,9 +363,9 @@ def custom_tts_endpoint(
     output_format: str = "mp3",
     output_sample_rate: Optional[int] = None,
     audio_name: Optional[str] = None,
-    silence_trimming: bool = False,
-    internal_silence_fix: bool = False,
-    unvoiced_removal: bool = False
+    #silence_trimming: bool = False,
+    #internal_silence_fix: bool = False,
+    #unvoiced_removal: bool = False
 ) -> Tuple[Optional[str], str]:  # (audio_file_path, status_message)
     """Original TTS generation function from server.py"""
     
@@ -386,7 +386,7 @@ def custom_tts_endpoint(
         audio_prompt_path = None
         if voice_mode == "predefined":
             if not predefined_voice_id:
-                return None, "Missing 'predefined_voice_id' for 'predefined' voice mode."
+                return None,None,False
             voices_dir = get_predefined_voices_path(ensure_absolute=True)
             potential_path = voices_dir / predefined_voice_id
             if not potential_path.is_file():
@@ -449,9 +449,10 @@ def custom_tts_endpoint(
             if len(all_audio_segments_np) > 1
             else all_audio_segments_np[0]
         )
+        print('aaaaaaaa engine_output_sample_rate',engine_output_sample_rate)
 #############################################################        
         # Применение аудио-обработки
-        
+"""        
         if silence_trimming:
             final_audio_np = utils.trim_lead_trail_silence(
                 final_audio_np, engine_output_sample_rate
@@ -481,7 +482,7 @@ def custom_tts_endpoint(
                 final_audio_np = final_audio_tensor.cpu().numpy()
             except Exception as e:
                 logger.error(f"Failed to apply speed factor: {e}", exc_info=True)
-        
+"""        
         # Кодирование аудио (аналог строк 802-815 server.py)
         output_format_str = output_format if output_format else get_audio_output_format()
         if output_sample_rate is not None:
@@ -687,12 +688,79 @@ def on_generate_click(
         output_format=output_format,
         output_sample_rate=config_audio_output_sample_rate,
         audio_name=audio_name,
-        silence_trimming=silence_trimming,
-        internal_silence_fix=internal_silence_fix,
-        unvoiced_removal=unvoiced_removal
+        #silence_trimming=silence_trimming,
+        #internal_silence_fix=internal_silence_fix,
+        #unvoiced_removal=unvoiced_removal
     )
     gr.Info(message)
-    return gr.update (value=audio_file, visible=True)
+    if audio_file !=None:
+        audio_data, sample_rate = librosa.load(audio_path, sr=None)
+        if silence_trimming:
+            audio_data = utils.trim_lead_trail_silence(
+                audio_data, engine_output_sample_rate
+            )
+        
+        if internal_silence_fix:
+            audio_datap = utils.fix_internal_silence(
+                audio_data, engine_output_sample_rate
+            )
+
+        if unvoiced_removal:
+            audio_data = utils.remove_long_unvoiced_segments(
+                audio_data, engine_output_sample_rate
+            )
+        # Применение скорости
+        if speed_factor != 1.0:
+            try:
+                import torch
+                final_audio_tensor = torch.from_numpy(audio_data.astype(np.float32))
+                
+                # Используем оригинальную функцию из utils
+                final_audio_tensor, _ = utils.apply_speed_factor(
+                    final_audio_tensor, 
+                    engine_output_sample_rate, 
+                    speed_factor
+                )
+                final_audio_np = final_audio_tensor.cpu().numpy()
+            except Exception as e:
+                logger.error(f"Failed to apply speed factor: {e}", exc_info=True)
+
+
+
+
+            output_format_str = output_format if output_format else get_audio_output_format()
+            if output_sample_rate is not None:
+                final_output_sample_rate = output_sample_rate
+            else:
+                final_output_sample_rate = get_audio_sample_rate()
+    
+            encoded_audio_bytes = utils.encode_audio(
+                audio_array=final_audio_np,
+                sample_rate=engine_output_sample_rate,
+                output_format=output_format_str,
+                target_sample_rate=final_output_sample_rate,  # ← используем определенный sample rate
+                )
+        
+            if encoded_audio_bytes is None:
+                return None, None, gr.update (visible=True)
+        
+        # Сохранение файла (аналог строк 817-840 server.py)
+            outputs_dir = get_output_path(ensure_absolute=True)
+            outputs_dir.mkdir(parents=True, exist_ok=True)
+        
+            timestamp_str = time.strftime("%Y%m%d_%H%M%S")
+            suggested_filename_base = audio_name or f"tts_output_{timestamp_str}"
+            file_name = utils.sanitize_filename(f"{suggested_filename_base}.{output_format_str}")
+            file_path = outputs_dir / file_name
+        
+            with open(file_path, "wb") as f:
+                f.write(encoded_audio_bytes)
+        
+            generation_time = time.time() - start_time
+        
+
+
+    return gr.update (value=audio_file, visible=True),gr.update (value=file_path, visible=True),gr.update (visible=True)
 
 
 
@@ -1127,13 +1195,7 @@ def create_gradio_interface():
                                         step=0.01,
                                         label="Exaggeration"
                                         )
-                                    speed_factor_slider = gr.Slider(
-                                        minimum=0.25,
-                                        maximum=4.0,
-                                        value=get_gen_default_speed_factor(),
-                                        step=0.05,
-                                        label="Speed Factor"
-                                        )
+                                    
                                     language_select = gr.Dropdown(
                                         choices=language_options,
                                         value=current_config.get("generation_defaults", {}).get("language", "English (en)"),
@@ -1146,18 +1208,29 @@ def create_gradio_interface():
                                         label="Audio Output Format",
                                         interactive=True
                                         )
-                                    silence_trimming = gr.Checkbox(
-                                        label="enable_silence_trimming",
+                                    
+                        with gr.Accordion("⚙️ Postprocessing Parameters", open=True):
+                            with gr.Row():
+                                speed_factor_slider = gr.Slider(
+                                        minimum=0.25,
+                                        maximum=4.0,
+                                        value=get_gen_default_speed_factor(),
+                                        step=0.05,
+                                        label="Speed Factor"
+                                        )
+                            with gr.Row():
+                                silence_trimming = gr.Checkbox(
+                                        label="Silence Trimming",
                                         value=current_config.get("audio_processing", {}).get("enable_silence_trimming", "False"),
                                         interactive=True
                                         )
-                                    internal_silence_fix = gr.Checkbox(
-                                        label="enable_internal_silence_fix",
+                                internal_silence_fix = gr.Checkbox(
+                                        label="Internal Silence Fix",
                                         value=current_config.get("audio_processing", {}).get("enable_internal_silence_fix", "False"),
                                         interactive=True
                                         )
-                                    unvoiced_removal = gr.Checkbox(
-                                        label="enable_unvoiced_removal",
+                                unvoiced_removal = gr.Checkbox(
+                                        label="Unvoiced Removal",
                                         value=current_config.get("audio_processing", {}).get("enable_unvoiced_removal", "False"),
                                         interactive=True
                                         )
@@ -1189,15 +1262,24 @@ def create_gradio_interface():
         
         # Секция с результатами
                 with gr.Row():
-                    with gr.Column():
                 # Аудиоплеер
-                        audio_output = gr.Audio(
+                    audio_output = gr.Audio(
                             label="Generated Audio",
                             type="filepath",
                             interactive=False,
                             visible=False,
                             show_download_button=True
                         )
+                with gr.Row():
+                    post_output = gr.Audio(
+                            label="Generated Audio",
+                            type="filepath",
+                            interactive=False,
+                            visible=False,
+                            show_download_button=True
+                        )
+                with gr.Row():
+                    post_btn = gr.Button("🎵 PostProcessing")
                 
               
 
@@ -1296,7 +1378,7 @@ def create_gradio_interface():
                 silence_trimming,
                 internal_silence_fix,
                 unvoiced_removal
-            ],outputs=[audio_output]) \
+            ],outputs=[audio_output,post_output,post_btn]) \
             .then (lambda: (gr.update(interactive=True)),outputs=[generate_btn])
         
         # Кнопки управления текстом
