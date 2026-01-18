@@ -118,6 +118,7 @@ def _ensure_default_paths_exist():
         Path(DEFAULT_CONFIG["tts_engine"]["predefined_voices_path"]),
         Path(DEFAULT_CONFIG["tts_engine"]["reference_audio_path"]),
         Path(DEFAULT_CONFIG["paths"]["model_cache"]),
+        Path(DEFAULT_CONFIG["paths"]["ruaccent_cache"]),
         Path(DEFAULT_CONFIG["paths"]["output"]),
     ]
     for path in paths_to_check:
