@@ -701,8 +701,8 @@ def on_generate_click(
 
 
         output_format_str = output_format if output_format else get_audio_output_format()
-        if output_sample_rate is not None:
-            final_output_sample_rate = output_sample_rate
+        if config_audio_output_sample_rate is not None:
+            final_output_sample_rate = config_audio_output_sample_rate
         else:
             final_output_sample_rate = get_audio_sample_rate()
     
