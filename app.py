@@ -82,6 +82,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 # Функция инициализации
+ruaccent_available = False
 def initialize_ruaccent():
     """
     Инициализирует RUAccent с учетом настроенных путей.
