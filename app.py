@@ -1151,17 +1151,6 @@ def create_gradio_interface():
                                         step=0.01,
                                         label="CFG Weight"
                                         )
-                                    seed_input = gr.Number(
-                                        value=get_gen_default_seed(),
-                                        label="Generation Seed (0 or -1 for random)"
-                                        )
-                                    config_audio_output_sample_rate = gr.Number(
-                                        label="Audio Sample Rate",
-                                        value=current_config.get("audio_output", {}).get("sample_rate", 24000),
-                                        precision=0,
-                                        interactive=True
-                                        )
-                                with gr.Column():
                                     exaggeration_slider = gr.Slider(
                                         minimum=0.0,
                                         maximum=2.0,
@@ -1169,6 +1158,13 @@ def create_gradio_interface():
                                         step=0.01,
                                         label="Exaggeration"
                                         )
+                                    seed_input = gr.Number(
+                                        value=get_gen_default_seed(),
+                                        label="Generation Seed (0 or -1 for random)"
+                                        )
+                                    
+                                with gr.Column():
+                                    
                                     
                                     language_select = gr.Dropdown(
                                         choices=language_options,
@@ -1180,6 +1176,12 @@ def create_gradio_interface():
                                         choices=["wav", "mp3", "opus"],
                                         value=current_config.get("audio_output", {}).get("format", "mp3"),
                                         label="Audio Output Format",
+                                        interactive=True
+                                        )
+                                    config_audio_output_sample_rate = gr.Number(
+                                        label="Audio Sample Rate",
+                                        value=current_config.get("audio_output", {}).get("sample_rate", 24000),
+                                        precision=0,
                                         interactive=True
                                         )
                 with gr.Row():                    
@@ -1267,68 +1269,68 @@ def create_gradio_interface():
                     - Experiment with **Temperature** and other generation parameters to fine-tune output.
                     """)
 
-        with gr.Tab("⚙️ Server Configuration"):
+        # with gr.Tab("⚙️ Server Configuration"):
 
-                gr.Markdown("""
-                These settings are loaded from `config.yaml` via an API call.
-                **Restart the server** to apply changes to Host, Port, Model, or Path settings if modified.
-                """)
-                with gr.Row():
-                    with gr.Column():
+        #         gr.Markdown("""
+        #         These settings are loaded from `config.yaml` via an API call.
+        #         **Restart the server** to apply changes to Host, Port, Model, or Path settings if modified.
+        #         """)
+        #         with gr.Row():
+        #             with gr.Column():
             
-                        config_paths_model_cache = gr.Textbox(
-                            label="Model Cache Path",
-                            value=current_config.get("paths", {}).get("model_cache", "./model_cache"),
-                            interactive=False
-                            )      
+        #                 config_paths_model_cache = gr.Textbox(
+        #                     label="Model Cache Path",
+        #                     value=current_config.get("paths", {}).get("model_cache", "./model_cache"),
+        #                     interactive=False
+        #                     )      
 
 
-                        config_tts_engine_reference_audio_path = gr.Textbox(
-                            label="Reference Audio Path",
-                            value=current_config.get("tts_engine", {}).get("reference_audio_path", "./reference_audio"),
-                            interactive=True
-                            )
-                        config_tts_engine_predefined_voices_path = gr.Textbox(
-                            label="Predefined Voices Path",
-                            value=current_config.get("tts_engine", {}).get("predefined_voices_path", "./voices"),
-                            interactive=True
-                            )
-                        config_paths_output = gr.Textbox(
-                            label="Output Path",
-                            value=current_config.get("paths", {}).get("output", "./outputs"),
-                            interactive=True
-                            )
-                    with gr.Column():  
-                        config_tts_engine_device = gr.Textbox(
-                            label="TTS Device",
-                            value=current_config.get("tts_engine", {}).get("device", "cpu"),
-                            interactive=False
-                            )                   
-                        config_tts_engine_default_voice_id = gr.Textbox(
-                            label="Predefined Voice",
-                            value=current_config.get("tts_engine", {}).get("default_voice_id", ""),
-                            interactive=True
-                            )
-                        config_tts_engine_default_voice_clone = gr.Textbox(
-                            label="Clone Voice",
-                            value=current_config.get("tts_engine", {}).get("default_voice_clone", ""),
-                            interactive=True
-                            )
+        #                 config_tts_engine_reference_audio_path = gr.Textbox(
+        #                     label="Reference Audio Path",
+        #                     value=current_config.get("tts_engine", {}).get("reference_audio_path", "./reference_audio"),
+        #                     interactive=True
+        #                     )
+        #                 config_tts_engine_predefined_voices_path = gr.Textbox(
+        #                     label="Predefined Voices Path",
+        #                     value=current_config.get("tts_engine", {}).get("predefined_voices_path", "./voices"),
+        #                     interactive=True
+        #                     )
+        #                 config_paths_output = gr.Textbox(
+        #                     label="Output Path",
+        #                     value=current_config.get("paths", {}).get("output", "./outputs"),
+        #                     interactive=True
+        #                     )
+        #             with gr.Column():  
+        #                 config_tts_engine_device = gr.Textbox(
+        #                     label="TTS Device",
+        #                     value=current_config.get("tts_engine", {}).get("device", "cpu"),
+        #                     interactive=False
+        #                     )                   
+        #                 config_tts_engine_default_voice_id = gr.Textbox(
+        #                     label="Predefined Voice",
+        #                     value=current_config.get("tts_engine", {}).get("default_voice_id", ""),
+        #                     interactive=True
+        #                     )
+        #                 config_tts_engine_default_voice_clone = gr.Textbox(
+        #                     label="Clone Voice",
+        #                     value=current_config.get("tts_engine", {}).get("default_voice_clone", ""),
+        #                     interactive=True
+        #                     )
                
             
-            # Кнопки управления конфигурацией
-                with gr.Row():
-                    save_config_btn = gr.Button("💾 Save Server Configuration", variant="primary")
+        #     # Кнопки управления конфигурацией
+        #         with gr.Row():
+        #             save_config_btn = gr.Button("💾 Save Server Configuration", variant="primary")
 
-        # --- ПРИВЯЗКА ОБРАБОТЧИКОВ СОБЫТИЙ ---
+        # # --- ПРИВЯЗКА ОБРАБОТЧИКОВ СОБЫТИЙ ---
 
-        save_config_btn.click(
-            fn=save_settings_endpoint,
-            inputs=[config_tts_engine_device, config_tts_engine_reference_audio_path, config_tts_engine_predefined_voices_path, 
-                config_tts_engine_default_voice_id, config_tts_engine_default_voice_clone,
-                config_paths_model_cache,config_paths_output,temperature_slider, exaggeration_slider,cfg_weight_slider, seed_input,
-                speed_factor_slider, language_select, config_audio_output_format,config_audio_output_sample_rate]
-        )
+        # save_config_btn.click(
+        #     fn=save_settings_endpoint,
+        #     inputs=[config_tts_engine_device, config_tts_engine_reference_audio_path, config_tts_engine_predefined_voices_path, 
+        #         config_tts_engine_default_voice_id, config_tts_engine_default_voice_clone,
+        #         config_paths_model_cache,config_paths_output,temperature_slider, exaggeration_slider,cfg_weight_slider, seed_input,
+        #         speed_factor_slider, language_select, config_audio_output_format,config_audio_output_sample_rate]
+        # )
         
 
         # Основная кнопка Generate
