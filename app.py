@@ -21,8 +21,8 @@ from config import (
 model_cache_path = config_manager.get_path("paths.model_cache", "./model_cache", ensure_absolute=True)
 
 # Устанавливаем переменные окружения ПЕРЕД любыми импортами huggingface
-# os.environ["HF_HOME"] = str(model_cache_path)
-# os.environ["HF_HUB_CACHE"] = str(model_cache_path)
+os.environ["HF_HOME"] = str(model_cache_path)
+os.environ["HF_HUB_CACHE"] = str(model_cache_path)
 # os.environ["TRANSFORMERS_CACHE"] = str(model_cache_path)
 # os.environ["TORCH_HOME"] = str(model_cache_path)
 # os.environ["HUGGINGFACE_HUB_CACHE"] = str(model_cache_path)
